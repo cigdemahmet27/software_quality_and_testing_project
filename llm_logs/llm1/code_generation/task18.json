@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-04-25T14:30:09.928532",
+  "task_num": 18,
+  "model": "gemini-2.5-flash",
+  "system_prompt": "You are a Java code generator. You will be given an incomplete Java class with a method signature and its documentation. Complete the implementation.\n\nRules:\n- Return ONLY the complete, compilable Java code.\n- Do NOT include markdown code blocks (no ```), explanations, or any text outside the Java code.\n- Keep all existing imports and the class structure.\n- Use 'public class Solution' (not package-private).\n- Do NOT add a package declaration.\n- Include all necessary imports.\n",
+  "user_prompt": "import java.util.*;\nimport java.lang.*;\n\nclass Solution {\n    /**\n    Find how many times a given substring can be found in the original string. Count overlaping cases.\n    >>> howManyTimes(\"\", \"a\")\n    0\n    >>> howManyTimes(\"aaa\", \"a\")\n    3\n    >>> howManyTimes(\"aaaa\", \"aa\")\n    3\n     */\n    public int howManyTimes(String string, String substring) {\n",
+  "raw_response": "import java.util.*;\nimport java.lang.*;\n\nclass Solution {\n    /**\n    Find how many times a given substring can be found in the original string. Count overlaping cases.\n    >>> howManyTimes(\"\", \"a\")\n    0\n    >>> howManyTimes(\"aaa\", \"a\")\n    3\n    >>> howManyTimes(\"aaaa\", \"aa\")\n    3\n     */\n    public int howManyTimes(String string, String substring) {\n        if (string == null || substring == null || string.isEmpty() && !substring.isEmpty()) {\n            return 0;\n        }\n        if (substring.isEmpty()) {\n            return 0; // An empty substring is often considered to not appear, or infinitely. Sticking to 0 for practical counting.\n        }\n        if (substring.length() > string.length()) {\n            return 0;\n        }\n\n        int count = 0;\n        int lastIndex = 0;\n\n        while (lastIndex != -1) {\n            lastIndex = string.indexOf(substring, lastIndex);\n            if (lastIndex != -1) {\n                count++;\n                lastIndex++; // Move search start to the next character to allow overlapping\n            }\n        }\n        return count;\n    }\n}",
+  "usage": {
+    "note": "token count not directly available"
+  }
+}

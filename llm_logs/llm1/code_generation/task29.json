@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-04-25T14:31:44.261432",
+  "task_num": 29,
+  "model": "gemini-2.5-flash",
+  "system_prompt": "You are a Java code generator. You will be given an incomplete Java class with a method signature and its documentation. Complete the implementation.\n\nRules:\n- Return ONLY the complete, compilable Java code.\n- Do NOT include markdown code blocks (no ```), explanations, or any text outside the Java code.\n- Keep all existing imports and the class structure.\n- Use 'public class Solution' (not package-private).\n- Do NOT add a package declaration.\n- Include all necessary imports.\n",
+  "user_prompt": "import java.util.*;\nimport java.lang.*;\nimport java.util.stream.Collectors;\n\nclass Solution {\n    /**\n    Filter an input list of strings only for ones that start with a given prefix.\n    >>> filterByPrefix(List.of(), \"a\")\n    []\n    >>> filterByPrefix(Arrays.asList(\"abc\", \"bcd\", \"cde\", \"array\"), \"a\")\n    [\"abc\", \"array\"]\n     */\n    public List<String> filterByPrefix(List<String> strings, String prefix) {\n",
+  "raw_response": "import java.util.*;\nimport java.lang.*;\nimport java.util.stream.Collectors;\n\npublic class Solution {\n    /**\n    Filter an input list of strings only for ones that start with a given prefix.\n    >>> filterByPrefix(List.of(), \"a\")\n    []\n    >>> filterByPrefix(Arrays.asList(\"abc\", \"bcd\", \"cde\", \"array\"), \"a\")\n    [\"abc\", \"array\"]\n     */\n    public List<String> filterByPrefix(List<String> strings, String prefix) {\n        // Use Java Streams to filter the list.\n        // For each string 's' in the list, check if it's not null and starts with the given prefix.\n        // Collect the matching strings into a new List.\n        return strings.stream()\n                      .filter(s -> s != null && s.startsWith(prefix))\n                      .collect(Collectors.toList());\n    }\n}",
+  "usage": {
+    "note": "token count not directly available"
+  }
+}

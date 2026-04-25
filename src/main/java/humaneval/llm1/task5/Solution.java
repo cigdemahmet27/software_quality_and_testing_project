@@ -1,0 +1,31 @@
+package humaneval.llm1.task5;
+
+import java.util.*;
+import java.lang.*;
+
+public class Solution {
+    /**
+    Insert a number 'delimeter' between every two consecutive elements of input list `numbers'
+    >>> intersperse(List.of(), 4)
+    []
+    >>> intersperse(Arrays.asList(1, 2, 3), 4)
+    [1, 4, 2, 4, 3]
+     */
+    public List<Integer> intersperse(List<Integer> numbers, int delimiter) {
+        List<Integer> result = new ArrayList<>();
+
+        if (numbers == null || numbers.isEmpty()) {
+            return result;
+        }
+
+        for (int i = 0; i < numbers.size(); i++) {
+            result.add(numbers.get(i));
+            // Add the delimiter if it's not the last element
+            if (i < numbers.size() - 1) {
+                result.add(delimiter);
+            }
+        }
+
+        return result;
+    }
+}

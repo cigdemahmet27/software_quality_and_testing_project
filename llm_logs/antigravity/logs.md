@@ -6,3 +6,9 @@ Initialize the project structure inside the `software_quality_and_testing_projec
 
 ---
 
+## Prompt 2: Agentic Code Generation Pipeline
+
+Prompt the LLMs by using APIs. We need to get the response and put the codes directly to the corresponding files, and also put the base tests that come with the dataset to the corresponding files. The src and test must be well structured — I don't want to see a lot of files together. Manage this automatically using a Python script for prompting and writing results to files.
+
+---
+

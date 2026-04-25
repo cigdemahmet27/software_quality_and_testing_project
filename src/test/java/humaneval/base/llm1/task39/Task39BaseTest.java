@@ -1,0 +1,36 @@
+package humaneval.base.llm1.task39;
+
+import humaneval.llm1.task39.Solution;
+
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import java.util.*;
+import java.lang.*;
+import java.util.stream.*;
+
+/**
+ * Base tests from HumanEval dataset for Task 39.
+ * Adapted to JUnit 5 format with minimal modifications.
+ */
+class Task39BaseTest {
+
+    @Test
+    void testFromDataset() {
+        Solution s = new Solution();
+                List<Boolean> correct = Arrays.asList(
+                        s.primeFib(1) == 2,
+                        s.primeFib(2) == 3,
+                        s.primeFib(3) == 5,
+                        s.primeFib(4) == 13,
+                        s.primeFib(5) == 89,
+                        s.primeFib(6) == 233,
+                        s.primeFib(7) == 1597,
+                        s.primeFib(8) == 28657,
+                        s.primeFib(9) == 514229,
+                        s.primeFib(10) == 433494437
+                );
+                if (correct.contains(false)) {
+                    throw new AssertionError();
+                }
+    }
+}
