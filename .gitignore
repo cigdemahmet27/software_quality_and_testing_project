@@ -1,0 +1,100 @@
+# ========================
+# Maven Build
+# ========================
+target/
+*.class
+*.jar
+*.war
+*.ear
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# ========================
+# IDE - IntelliJ IDEA
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ========================
+# IDE - Eclipse
+# ========================
+.settings/
+.project
+.classpath
+bin/
+
+# ========================
+# IDE - VS Code
+# ========================
+.vscode/
+
+# ========================
+# IDE - NetBeans
+# ========================
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# ========================
+# OS Generated
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ========================
+# Editor Temp Files
+# ========================
+*.swp
+*.swo
+*.bak
+*.tmp
+*~
+
+# ========================
+# JaCoCo Coverage (regenerated via mvn test)
+# ========================
+# HTML reports are regenerated, no need to track
+# target/site/jacoco/ is already excluded via target/
+
+# ========================
+# Secrets / API Keys
+# ========================
+.env
+.env.*
+
+# ========================
+# Python temp (if any helper scripts used)
+# ========================
+__pycache__/
+*.pyc
+*.pyo
+
+# ========================
+# Logs (runtime)
+# ========================
+*.log
+
+# ========================
+# Files outside this repo that should never leak
+# ========================
+# The repo root is software_quality_and_testing_project/
+# Files like humaneval_java.jsonl, project PDFs, etc. 
+# live outside this folder and are never seen by git.
