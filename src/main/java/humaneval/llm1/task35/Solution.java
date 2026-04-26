@@ -3,7 +3,7 @@ package humaneval.llm1.task35;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     Return maximum element in the list.
     >>> maxElement(Arrays.asList(1, 2, 3))

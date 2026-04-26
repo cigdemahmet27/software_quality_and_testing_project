@@ -12,7 +12,7 @@ import java.util.stream.*;
  * Base tests from HumanEval dataset for Task 9.
  * Adapted to JUnit 5 format with minimal modifications.
  */
-class Task9BaseTest {
+public class Task9BaseTest {
 
     @Test
     void testFromDataset() {

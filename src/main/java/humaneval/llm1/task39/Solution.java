@@ -3,7 +3,7 @@ package humaneval.llm1.task39;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     primeFib returns n-th number that is a Fibonacci number and it's also prime.
     >>> primeFib(1)

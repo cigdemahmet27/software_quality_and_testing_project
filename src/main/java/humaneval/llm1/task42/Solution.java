@@ -4,7 +4,7 @@ import java.util.*;
 import java.lang.*;
 import java.util.stream.Collectors;
 
-class Solution {
+public class Solution {
     /**
     Return list with elements incremented by 1.
     >>> incrList(Arrays.asList(1, 2, 3))

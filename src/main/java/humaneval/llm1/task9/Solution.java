@@ -3,7 +3,7 @@ package humaneval.llm1.task9;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     From a given list of integers, generate a list of rolling maximum element found until given moment
     in the sequence.

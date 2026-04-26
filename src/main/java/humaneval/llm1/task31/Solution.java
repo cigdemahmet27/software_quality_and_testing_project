@@ -3,7 +3,7 @@ package humaneval.llm1.task31;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     Return true if a given number is prime, and false otherwise.
     >>> isPrime(6)

@@ -3,7 +3,7 @@ package humaneval.llm1.task45;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     Given length of a side and high return area for a triangle.
     >>> triangleArea(5, 3)

@@ -3,7 +3,7 @@ package humaneval.llm1.task43;
 import java.util.*;
 import java.lang.*;
 
-class Solution {
+public class Solution {
     /**
     pairsSumToZero takes a list of integers as an input.
     it returns True if there are two distinct elements in the list that
