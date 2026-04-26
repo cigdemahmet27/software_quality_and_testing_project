@@ -34,10 +34,6 @@ public class Solution {
     public String makePalindrome(String string) {
         int n = string.length();
 
-        if (n == 0) {
-            return "";
-        }
-
         // Find the starting index of the longest palindromic suffix.
         // We iterate `i` from 0 to n-1.
         // `string.substring(i)` gives suffixes of decreasing length.
