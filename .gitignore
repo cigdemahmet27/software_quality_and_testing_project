@@ -98,3 +98,9 @@ __pycache__/
 # The repo root is software_quality_and_testing_project/
 # Files like humaneval_java.jsonl, project PDFs, etc. 
 # live outside this folder and are never seen by git.
+
+# ========================
+# Documents (PDF, TXT)
+# ========================
+*.pdf
+*.txt
