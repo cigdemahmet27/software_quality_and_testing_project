@@ -128,8 +128,7 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-% TODO: Write a concise abstract summarizing the project objectives, methodology,
-% key findings, and conclusions. (150--250 words recommended)
+In this report, we go over the work we did for the BLG~475E Software Quality and Testing term project. We picked two Large Language Models---Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2)---and tested how well they can write code and generate unit tests for 30 Java tasks from the HumanEval dataset. Since API costs were too high, we used a semi-agentic workflow where we gave prompts through each model's web interface and then put the generated code into our Maven project by hand. Our testing pipeline had three stages: first we ran the base tests and checked branch coverage with JaCoCo, then we asked the LLMs to write better tests to cover missed branches and we ran JNose for test smells, and finally we wrote manual black-box tests using equivalence class partitioning and boundary value analysis. Both LLMs got to 100\% branch coverage after the improvement step. But the manual tests still found 2 bugs in LLM~1's code and 4 bugs in LLM~2's code---things like integer overflow, double overflow, missing input checks, and slow algorithms. We fixed all the bugs with help from the LLMs. The main takeaway is that even with full coverage, you still need manual boundary testing to catch edge-case bugs.
 \end{abstract}
 
 \newpage
@@ -143,9 +142,12 @@
 \label{sec:introduction}
 
 \subsection{Introduction}
-% TODO: Introduce the role of Large Language Models (LLMs) in code generation
-% and software testing. Discuss why automated test generation is important
-% and how LLMs are changing the landscape.
+
+Large Language Models (LLMs) like Google's Gemini and Anthropic's Claude have become popular tools in software development. They can write code from plain English descriptions and they can also generate unit tests, which makes them useful for speeding up the development process.
+
+Writing tests by hand takes a lot of time and effort, and it is easy to miss edge cases. LLMs can help with this by generating test cases from function signatures and docstrings. But the code that LLMs write is not always correct---research has shown that it can have subtle bugs, especially around boundary conditions and performance~\cite{chatunitest, mutation_meta}.
+
+In this project, we used two LLMs---Gemini Pro and Claude Opus~4.6---to generate Java solutions and tests for 30 tasks from the HumanEval benchmark~\cite{humaneval}. We then checked the quality of both the code and the tests through a multi-step process: base testing, coverage-driven test improvement, test smell detection, manual black-box testing with equivalence classes and boundary values, and finally LLM-assisted bug fixing.
 
 \subsection{Literature Review}
 This section reviews five recent studies that investigate the use of LLMs in automated test generation and code quality assurance.
@@ -217,7 +219,9 @@ This approach had some clear pros and cons.
 
 \subsection{Prompt Selection Criteria}
 
-We picked 30 prompts from the HumanEval dataset~\cite{humaneval}. The full list is in \texttt{dataset/selected\_prompts.json}. Our selection criteria were:
+We picked 30 prompts from the HumanEval dataset~\cite{humaneval}. 
+The full list can be found in \texttt{dataset/selected\_prompts.json}. 
+Our selection criteria were:
 
 \begin{itemize}
     \item \textbf{Difficulty mix:} 15 easy, 10 moderate, and 5 hard prompts so we could test the LLMs at different complexity levels.
@@ -444,8 +448,8 @@ We did not need to create input mutations---the boundary values we picked by han
 \label{sec:results}
 
 \subsection{Test Case Results}
-% TODO: Provide clear tables or graphs visualizing the percentages of successful
-% and failed test cases, alongside code correctness and error rates.
+
+Table~\ref{tab:overall-results} shows how both LLMs did overall in the manual testing phase.
 
 \begin{table}[H]
 \centering
@@ -455,12 +459,17 @@ We did not need to create input mutations---the boundary values we picked by han
 \toprule
 \textbf{Metric} & \textbf{LLM 1 (Gemini)} & \textbf{LLM 2 (Claude)} \\
 \midrule
- &  &  \\
+Total Manual Tests      & 273 & 273 \\
+Passed                  & 271 & 269 \\
+Failed                  & 2   & 3   \\
+Errors (Timeout)        & 0   & 1   \\
+Pass Rate (\%)          & 99.3 & 98.5 \\
+Buggy Tasks             & 2/30 & 4/30 \\
+Code Correctness (\%)   & 93.3 & 86.7 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-% Example: Bar chart for pass/fail visualization
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -478,36 +487,76 @@ We did not need to create input mutations---the boundary values we picked by han
     every node near coord/.append style={font=\small},
     enlarge x limits=0.2,
 ]
-% TODO: Replace 0 values with actual data
-\addplot coordinates {(LLM 1,0) (LLM 2,0)};
-\addplot coordinates {(LLM 1,0) (LLM 2,0)};
+\addplot coordinates {(LLM 1,99.3) (LLM 2,98.5)};
+\addplot coordinates {(LLM 1,0.7) (LLM 2,1.5)};
 \legend{Pass Rate, Fail Rate}
 \end{axis}
 \end{tikzpicture}
-\caption{Test Pass/Fail Rates by LLM}
+\caption{Test Pass/Fail Rates by LLM (Manual Black-Box Testing)}
 \label{fig:pass-fail-chart}
 \end{figure}
 
 \subsection{Statistical Evaluation}
-% TODO: Provide a statistical evaluation of the agents' performance
-% and success rates.
+
+Both LLMs wrote code that works fine for normal inputs---all 30 tasks passed the base and improved tests with a 100\% pass rate. The bugs only showed up when we ran the manual boundary tests. So both models are good at handling common cases but they have trouble with extreme inputs.
+
+Some things worth noting:
+\begin{itemize}
+    \item \textbf{Bug rate:} LLM~1 had bugs in 2 out of 30 tasks (6.7\%), and LLM~2 had bugs in 4 out of 30 tasks (13.3\%). So LLM~1 wrote more reliable code when it comes to edge cases.
+    \item \textbf{Types of bugs:} LLM~1 only had overflow problems (integer and double). LLM~2 had a wider mix---missing input checks, a slow algorithm, and a wrong initial value.
+    \item \textbf{Same bug in both:} Task~\#45 (\texttt{triangleArea}) was broken in both LLMs. They both wrote \texttt{a * h / 2.0} without thinking about what happens when \texttt{a} is very large.
+    \item \textbf{Coverage is not enough:} All tasks had 100\% branch coverage, but 6 bugs were still hiding in the code. This proves that coverage alone does not mean the code is correct.
+\end{itemize}
 
 \subsection{LLM Comparison}
-% TODO: Include a comparison table for each LLM detailing metrics such as
-% coverage and test cases per method.
+
+Table~\ref{tab:per-method-comparison} shows how the two LLMs compare task by task in terms of coverage and number of test methods.
 
 \begin{table}[H]
 \centering
-\caption{Per-Method Comparison Between LLMs}
+\caption{Per-Method Comparison Between LLMs (Improved Tests)}
 \label{tab:per-method-comparison}
 \begin{tabularx}{\textwidth}{l c c c c}
 \toprule
-\textbf{Task} & \textbf{LLM 1 Coverage (\%)} & \textbf{LLM 1 Tests} & \textbf{LLM 2 Coverage (\%)} & \textbf{LLM 2 Tests} \\
+\textbf{Task} & \textbf{LLM 1 Cov.(\%)} & \textbf{LLM 1 Tests} & \textbf{LLM 2 Cov.(\%)} & \textbf{LLM 2 Tests} \\
 \midrule
- &  &  &  &  \\
+\#0  & 100 & 7  & 100 & 7  \\
+\#2  & 100 & 3  & 100 & 5  \\
+\#3  & 100 & 4  & 100 & 6  \\
+\#4  & 100 & 6  & 100 & 4  \\
+\#5  & 100 & 6  & 100 & 4  \\
+\#7  & 100 & 7  & 100 & 4  \\
+\#8  & 100 & 3  & 100 & 3  \\
+\#9  & 100 & 5  & 100 & 5  \\
+\#10 & 100 & 7  & 100 & 7  \\
+\#11 & 100 & 6  & 100 & 4  \\
+\#13 & 100 & 3  & 100 & 3  \\
+\#14 & 100 & 5  & 100 & 3  \\
+\#15 & 100 & 5  & 100 & 4  \\
+\#16 & 100 & 5  & 100 & 3  \\
+\#18 & 100 & 10 & 100 & 4  \\
+\#23 & 100 & 2  & 100 & 2  \\
+\#25 & 100 & 6  & 100 & 5  \\
+\#26 & 100 & 6  & 100 & 5  \\
+\#27 & 100 & 7  & 100 & 4  \\
+\#28 & 100 & 5  & 100 & 2  \\
+\#29 & 100 & 5  & 100 & 3  \\
+\#30 & 100 & 4  & 100 & 4  \\
+\#31 & 100 & 9  & 100 & 5  \\
+\#34 & 100 & 2  & 100 & 2  \\
+\#35 & 100 & 2  & 100 & 2  \\
+\#39 & 100 & 12 & 100 & 8  \\
+\#42 & 100 & 3  & 100 & 3  \\
+\#43 & 100 & 4  & 100 & 5  \\
+\#45 & 100 & 2  & 100 & 2  \\
+\#49 & 100 & 5  & 100 & 3  \\
+\midrule
+\textbf{Average} & \textbf{100} & \textbf{5.3} & \textbf{100} & \textbf{3.9} \\
 \bottomrule
 \end{tabularx}
 \end{table}
+
+LLM~1 (Gemini) wrote about 5.3 test methods per task on average, while LLM~2 (Claude) wrote about 3.9. Even with fewer tests, LLM~2 still got 100\% coverage, so its tests were more focused. But LLM~2's actual code had more bugs, which shows that writing good tests and writing correct code are two different things.
 
 \subsection{Refactoring Process}
 
@@ -542,15 +591,20 @@ Table~\ref{tab:code-errors} lists all the bugs we found in the LLM-generated cod
 \centering
 \caption{Errors Detected in LLM-Generated Code}
 \label{tab:code-errors}
-\begin{tabularx}{\textwidth}{l l l X l}
+\begin{tabularx}{\textwidth}{l l l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{3.5cm}}
 \toprule
 \textbf{Task} & \textbf{LLM} & \textbf{Error Type} & \textbf{Description} & \textbf{Resolution} \\
 \midrule
 \#31 & LLM~1 & Integer Overflow & Loop condition \texttt{i*i<=n} overflows for \texttt{Integer.MAX\_VALUE} & Cast to \texttt{long} \\
+\addlinespace
 \#45 & LLM~1 & Double Overflow & Intermediate \texttt{a*h} overflows for \texttt{Double.MAX\_VALUE} & Reorder arithmetic \\
-\#13 & LLM~2 & Missing Normalization & No \texttt{Math.abs()} for negative GCD inputs & Add abs() calls \\
+\addlinespace
+\#13 & LLM~2 & Missing Norm. & No \texttt{Math.abs()} for negative GCD inputs & Add abs() calls \\
+\addlinespace
 \#25 & LLM~2 & Performance & $O(n)$ trial division too slow for large primes & $O(\sqrt{n})$ optimization \\
+\addlinespace
 \#45 & LLM~2 & Double Overflow & Same intermediate overflow as LLM~1 & Reorder arithmetic \\
+\addlinespace
 \#49 & LLM~2 & Off-by-One Init & Initial value not reduced by modulo when $n=0$ & Init as \texttt{1\%p} \\
 \bottomrule
 \end{tabularx}
@@ -562,8 +616,23 @@ Table~\ref{tab:code-errors} lists all the bugs we found in the LLM-generated cod
 \section{Conclusion}
 \label{sec:conclusion}
 
-% TODO: Summarize the capabilities and shortcomings of the chosen LLMs
-% in both unit and integration testing pipelines.
+In this project we tested Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2) on 30 Java tasks from HumanEval. Here is what we learned:
+
+\begin{enumerate}
+    \item Both LLMs wrote code that works correctly for normal inputs. All 30 tasks passed the base tests without any changes to the source code.
+
+    \item After one round of test improvement, both LLMs got to 100\% branch coverage on all 30 tasks. So they are good at generating tests when you tell them which branches to target.
+
+    \item But even with full coverage, manual testing found 2 bugs in LLM~1 and 4 bugs in LLM~2. All the bugs were in boundary conditions---overflow, missing input checks, slow algorithms, and wrong initial values. This confirms that \textbf{branch coverage by itself is not enough}.
+
+    \item LLM~1 (Gemini) had fewer bugs (6.7\% vs.\ 13.3\%), so it wrote more reliable code for edge cases. LLM~2 (Claude) wrote fewer but more focused tests.
+
+    \item Both LLMs were able to fix all the bugs when we gave them detailed prompts with the failing test and the root cause.
+
+    \item The LLM-generated tests had some test smells (mainly \textit{Unknown Test} and \textit{Magic Number Test}), which shows that LLMs tend to write quick-and-dirty tests rather than well-structured ones.
+\end{enumerate}
+
+The bottom line is that LLMs are useful tools for writing code and tests, but you still need to do manual testing---especially boundary value analysis---to catch the subtle bugs that automated approaches miss.
 
 %==============================================================================
 % SECTION VI: Acknowledgments
