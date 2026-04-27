@@ -3,10 +3,7 @@ package humaneval.base.llm1.task30;
 import humaneval.llm1.task30.Solution;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 import java.util.*;
-import java.lang.*;
-import java.util.stream.*;
 
 /**
  * Base tests from HumanEval dataset for Task 30.
