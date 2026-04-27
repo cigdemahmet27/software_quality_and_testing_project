@@ -172,7 +172,7 @@ Fakhoury et al.~\cite{ticoder} propose \textit{TiCoder}, an interactive workflow
 \label{sec:methodology}
 
 \subsection{Selected LLMs}
-For this project, we selected two distinct Large Language Models to generate solutions and test cases for the HumanEval dataset prompts. The selection was based on their state-of-the-art performance in code generation and reasoning tasks.
+We chose two different LLMs for this project. Both are known for being good at writing code and reasoning about problems.
 
 \begin{table}[H]
 \centering
@@ -190,86 +190,88 @@ Primary Role     & Code and test generation & Code and test generation \\
 \end{table}
 
 \subsection{Semi-Agentic Approach Justification}
-Initially, we attempted to implement a fully automated agentic approach. We designed Python scripts to automate the prompting, code extraction, and test generation pipeline directly via the models' APIs. However, we encountered significant challenges regarding API rate limits and token exhaustion. The continuous stream of requests required for 30 HumanEval tasks, including generation, validation, and potential repair cycles, quickly depleted our free token quotas and incurred prohibitive costs.
+At first, we tried to build a fully automated pipeline using Python scripts that would call the models' APIs directly. But we ran into problems with API rate limits and token quotas---the free tiers ran out fast when dealing with 30 tasks, and paying for more was not an option.
 
-To bypass these API constraints and complete the project successfully, we pivoted to a \textit{semi-agentic approach}. In this workflow, we manually managed the interaction with the LLMs through their respective web interfaces. We crafted the prompts locally, submitted them to the web UI, and manually extracted the generated code and tests to integrate them into our local Maven project.
+So we switched to a \textit{semi-agentic approach} instead. We wrote the prompts on our machines, pasted them into each LLM's web interface, and then copied the generated code back into our Maven project by hand.
 
 \subsection{Advantages and Limitations}
-The semi-agentic approach presented distinct advantages and limitations compared to a fully automated pipeline.
+This approach had some clear pros and cons.
 
 \textbf{Advantages:}
 \begin{itemize}
-    \item \textit{Cost Control:} By utilizing the web interfaces, we completely circumvented the API costs and token limits that stalled our initial automated approach.
-    \item \textit{Enhanced Control and Observation:} Manually handling the prompts allowed us to closely monitor the models' reasoning processes in real-time, making it easier to adjust our prompt engineering strategies on the fly when models hallucinated or failed to follow instructions.
+    \item \textit{No cost:} Using the web interface meant we did not have to pay anything or worry about token limits.
+    \item \textit{More control:} We could see exactly what the model was doing at each step and fix our prompts if something went wrong.
 \end{itemize}
 
 \textbf{Limitations:}
 \begin{itemize}
-    \item \textit{Increased Manual Effort:} The most significant drawback was the substantial manual labor required to copy, paste, format, and organize the code for 30 distinct tasks across two models.
-    \item \textit{Reduced Scalability:} While effective for a subset of 30 prompts, this manual workflow is not scalable for evaluating the entire HumanEval dataset (164 tasks) or for integration into continuous integration/continuous deployment (CI/CD) pipelines.
+    \item \textit{Lots of manual work:} Copying and pasting code for 30 tasks across two models took a long time.
+    \item \textit{Not scalable:} This would not work well for the full HumanEval dataset (164 tasks) or for a CI/CD pipeline.
 \end{itemize}
 
 %==============================================================================
 % SECTION III: Phase 1 -- Unit Testing and Manual Assessment
 %==============================================================================
-\section{Phase 1: Unit Testing and Manual Assessment}
+\section{Phase 1: Selecting LLMs, LLM-based code and test generation, and manual unit test generation }
 \label{sec:phase1}
 
 \subsection{Prompt Selection Criteria}
-% TODO: Explain your criteria for selecting the 30 specific prompts from
-% the HumanEval dataset.
+
+We picked 30 prompts from the HumanEval dataset~\cite{humaneval}. The full list is in \texttt{dataset/selected\_prompts.json}. Our selection criteria were:
+
+\begin{itemize}
+    \item \textbf{Difficulty mix:} 15 easy, 10 moderate, and 5 hard prompts so we could test the LLMs at different complexity levels.
+    \item \textbf{Different topics:} We made sure to include string operations, math problems, list processing, and algorithm tasks.
+    \item \textbf{Required tasks:} Tasks \#18, \#23, and \#27 were mandatory for Phase~1.2.
+    \item \textbf{How we classified difficulty:} Easy tasks have simple logic and few edge cases. Moderate tasks need multiple steps or careful handling of special inputs. Hard tasks involve recursion, complex math, or tricky algorithms.
+\end{itemize}
 
 \subsection{Difficulty Categorization}
-% TODO: Categorize the 30 prompts by difficulty (easy, moderate, hard).
+
+Table~\ref{tab:prompt-difficulty} summarizes the categorization of the 30 selected prompts by difficulty level.
 
 \begin{table}[H]
 \centering
 \caption{HumanEval Prompt Categorization by Difficulty}
 \label{tab:prompt-difficulty}
-\begin{tabularx}{\textwidth}{l l X}
+\begin{tabularx}{\textwidth}{l X l}
 \toprule
-\textbf{Difficulty} & \textbf{Task IDs} & \textbf{Description / Rationale} \\
+\textbf{Difficulty} & \textbf{Task IDs} & \textbf{Rationale} \\
 \midrule
-Easy     &  &  \\
-Moderate &  &  \\
-Hard     &  &  \\
+Easy (15)  & \#2, \#5, \#8, \#9, \#14, \#15, \#16, \#23, \#27, \#28, \#30, \#34, \#35, \#42, \#45 & Simple logic, few branches \\
+\addlinespace
+Moderate (10) & \#0, \#3, \#7, \#11, \#13, \#18, \#26, \#29, \#31, \#43 & Multi-step, edge cases \\
+\addlinespace
+Hard (5)   & \#4, \#10, \#25, \#39, \#49 & Recursion, complex math \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Base Testing Phase}
-% TODO: Describe the base testing phase. Note any minor modifications made to
-% expected values without altering the LLM-generated code.
 
-\subsection{Manual Assessment Results}
-% TODO: Present manual assessment results in tables, detailing equivalence class
-% partitioning (valid and invalid classes) alongside boundary conditions.
+We gave each LLM the HumanEval prompt---function signature, docstring, and example test cases---and asked it to write the Java implementation. The code went into \texttt{src/main/java/humaneval/llm1/} and \texttt{src/main/java/humaneval/llm2/}.
 
-% Template table for a single task's equivalence class analysis:
-\begin{table}[H]
+At the same time, each LLM also generated a basic set of unit tests (the ``base tests'') based on the examples in the prompt. These tests were simple and just checked that the function works for the sample inputs. We did not change the LLM-generated source code at this point.
+
+Figure~\ref{fig:base-llm1} and Figure~\ref{fig:base-llm2} show the JaCoCo coverage results for these base tests. LLM~1 had mixed results, with branch coverage ranging from 68\% to 100\%---for example, Task~\#18 only got 68\% and Task~\#7 got 70\%. LLM~2 did better overall, with only Task~\#25 falling below 100\% (at 83\%). Some simple tasks like \texttt{strlen} show ``n/a'' because they have no branches to cover.
+
+\begin{figure}[H]
 \centering
-\caption{Equivalence Class Partitioning -- Task \#X}
-\label{tab:ecp-taskX}
-\begin{tabularx}{\textwidth}{l l X l}
-\toprule
-\textbf{Class ID} & \textbf{Type} & \textbf{Description} & \textbf{Expected Output} \\
-\midrule
-EC1 & Valid   &  &  \\
-EC2 & Valid   &  &  \\
-EC3 & Invalid &  &  \\
-EC4 & Invalid &  &  \\
-\midrule
-\multicolumn{4}{l}{\textit{Boundary Conditions}} \\
-\midrule
-BC1 &  &  &  \\
-BC2 &  &  &  \\
-\bottomrule
-\end{tabularx}
-\end{table}
+\includegraphics[width=\textwidth]{images/base_test_coverages_llm1.png}
+\caption{JaCoCo Branch Coverage --- LLM~1 Base Tests}
+\label{fig:base-llm1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/base_test_coverages_llm2.png}
+\caption{JaCoCo Branch Coverage --- LLM~2 Base Tests}
+\label{fig:base-llm2}
+\end{figure}
 
 \subsection{Test Smell and Branch Coverage Analysis}
-% TODO: Detail the test smell and branch coverage analysis utilized to
-% improve your base tests.
+
+We ran test smell analysis using JNose on all our test classes (base, improved, and manual). The raw results are saved in \texttt{analysis/test\_smell\_reports/result\_byclasstest.csv}. Table~\ref{tab:test-smells} shows what we found.
 
 \begin{table}[H]
 \centering
@@ -277,101 +279,166 @@ BC2 &  &  &  \\
 \label{tab:test-smells}
 \begin{tabularx}{\textwidth}{l l X l}
 \toprule
-\textbf{Task} & \textbf{Smell Type} & \textbf{Description} & \textbf{Action Taken} \\
+\textbf{Category} & \textbf{Smell Type} & \textbf{Description} & \textbf{Prevalence} \\
 \midrule
- &  &  &  \\
+Base Tests & Unknown Test & Test methods have no clear name or assertion & All 60 classes \\
+Base Tests & Ignored Test & Test annotation is there but the method is skipped & All 60 classes \\
+Improved (LLM1) & Magic Number Test & Hard-coded numbers in assertions & 20 of 30 classes \\
+Improved (LLM2) & Magic Number Test & Hard-coded numbers in assertions & 18 of 30 classes \\
+Manual Tests & Magic Number Test & Numbers used in boundary value tests & 14 of 20 classes \\
+Manual Tests & Verbose Test & Task~\#10 has 17 methods and 143 lines & 1 class \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+The main smells in the base tests were \textit{Unknown Test} and \textit{Ignored Test}. This makes sense because the LLMs tended to put everything into one big test method without giving it a good name. In the improved and manual tests, \textit{Magic Number Test} came up a lot, but that is hard to avoid when you are writing boundary value tests with specific numbers.
+
+After looking at which branches were missed, we asked each LLM to write improved tests that would cover those gaps. Table~\ref{tab:branch-coverage} shows some of the coverage improvements for LLM~1.
+
 \begin{table}[H]
 \centering
-\caption{Branch Coverage Summary}
+\caption{Branch Coverage Summary (LLM~1)}
 \label{tab:branch-coverage}
 \begin{tabularx}{\textwidth}{l c c c}
 \toprule
 \textbf{Task} & \textbf{Base Coverage (\%)} & \textbf{Improved Coverage (\%)} & \textbf{Improvement} \\
 \midrule
- &  &  &  \\
+\#0  & 80  & 100 & +20\% \\
+\#3  & 100 & 100 & --- \\
+\#4  & 75  & 100 & +25\% \\
+\#5  & 87  & 100 & +13\% \\
+\#7  & 70  & 100 & +30\% \\
+\#9  & 100 & 100 & --- \\
+\#10 & 100 & 100 & --- \\
+\#11 & 75  & 100 & +25\% \\
+\#14 & 83  & 100 & +17\% \\
+\#16 & 83  & 100 & +17\% \\
+\#18 & 68  & 100 & +32\% \\
+\#26 & 83  & 100 & +17\% \\
+\#27 & 90  & 100 & +10\% \\
+\#28 & 83  & 100 & +17\% \\
+\#29 & 75  & 100 & +25\% \\
+\#31 & 85  & 100 & +15\% \\
+\#39 & 94  & 100 & +6\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+After the improvement step, \textbf{all 30 tasks reached 100\% branch coverage for both LLMs} (see Figures~\ref{fig:improved-llm1} and~\ref{fig:improved-llm2}). The coverage reports are stored under \texttt{report/images/}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/improved_test_coverages_llm1.png}
+\caption{JaCoCo Branch Coverage --- LLM~1 Improved Tests (100\% across all tasks)}
+\label{fig:improved-llm1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{images/improved_test_coverages_llm2.png}
+\caption{JaCoCo Branch Coverage --- LLM~2 Improved Tests (100\% across all tasks)}
+\label{fig:improved-llm2}
+\end{figure}
+
+\subsection{Manual Assessment Results}
+
+We wrote manual black-box tests for all 30 tasks on both LLMs. Each team member took 10 tasks and came up with equivalence classes (valid, invalid) and boundary conditions, then wrote JUnit~5 tests for each one. In total we ran 273 manual tests per LLM. The test files are under \texttt{src/test/java/humaneval/manual/} and the equivalence class tables are in \texttt{analysis/equivalence\_classes/}.
+
+Here are a few example equivalence class tables. The full set for all 30 tasks can be found in the repository.
+
+\begin{table}[H]
+\centering
+\caption{Equivalence Class Partitioning -- Task \#0 (hasCloseElements)}
+\label{tab:ecp-task0}
+\begin{tabularx}{\textwidth}{l l X l}
+\toprule
+\textbf{Class ID} & \textbf{Type} & \textbf{Description} & \textbf{Expected} \\
+\midrule
+V1 & Valid   & Pair closer than threshold & \texttt{true} \\
+V2 & Valid   & No pair closer than threshold & \texttt{false} \\
+V3 & Valid   & Identical elements with positive threshold & \texttt{true} \\
+I1 & Invalid & Empty list (no pairs possible) & \texttt{false} \\
+I2 & Invalid & Single element list & \texttt{false} \\
+\midrule
+\multicolumn{4}{l}{\textit{Boundary Conditions}} \\
+\midrule
+BC1 & Boundary & Distance exactly equals threshold (strict $<$) & \texttt{false} \\
+BC3 & Boundary & Threshold = 0 with distinct elements & \texttt{false} \\
+BC4 & Boundary & Threshold = 0 with identical elements & \texttt{false} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Equivalence Class Partitioning -- Task \#31 (isPrime)}
+\label{tab:ecp-task31}
+\begin{tabularx}{\textwidth}{l l X l}
+\toprule
+\textbf{Class ID} & \textbf{Type} & \textbf{Description} & \textbf{Expected} \\
+\midrule
+V1 & Valid   & Small prime number (e.g., 3) & \texttt{true} \\
+V2 & Valid   & Large prime number (e.g., 13441) & \texttt{true} \\
+V3 & Valid   & Even composite $> 2$ (e.g., 6) & \texttt{false} \\
+I1 & Invalid & Number 1 (not prime by definition) & \texttt{false} \\
+I2 & Invalid & Negative number (e.g., $-7$) & \texttt{false} \\
+I3 & Invalid & Zero & \texttt{false} \\
+\midrule
+\multicolumn{4}{l}{\textit{Boundary Conditions}} \\
+\midrule
+BC1 & Boundary & Smallest prime (2) & \texttt{true} \\
+BC4 & Boundary & Perfect square (4, sqrt boundary) & \texttt{false} \\
+BC5 & Boundary & Integer.MAX\_VALUE (Mersenne prime $2^{31}-1$) & \texttt{true} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Equivalence Class Partitioning -- Task \#45 (triangleArea)}
+\label{tab:ecp-task45}
+\begin{tabularx}{\textwidth}{l l X l}
+\toprule
+\textbf{Class ID} & \textbf{Type} & \textbf{Description} & \textbf{Expected} \\
+\midrule
+V1 & Valid   & Positive integers (5, 3) & 7.5 \\
+V2 & Valid   & Positive floats (2.5, 4.2) & 5.25 \\
+I1 & Invalid & Negative side ($-5$, 3) & $< 0$ \\
+I3 & Invalid & Side or height is zero (0, 5) & 0.0 \\
+\midrule
+\multicolumn{4}{l}{\textit{Boundary Conditions}} \\
+\midrule
+BC1 & Boundary & Very small positive values (precision) & $\approx 0$ \\
+BC2 & Boundary & Double.MAX\_VALUE overflow boundary & MAX\_VALUE \\
+BC3 & Boundary & Double.MIN\_VALUE (minimal positive) & MIN\_VALUE \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \subsection{Coverage Discussion and Input Mutations}
-% TODO: Explain to what extent your tests cover the identified classes.
-% Discuss any input mutations generated to address test failures.
+
+Our manual tests covered all the equivalence classes and boundary conditions we identified. We ran 273 tests per LLM and the results are documented in \texttt{analysis/manual\_test\_reports/}.
+
+\textbf{LLM~1:} 271 out of 273 tests passed (99.3\%). The two failures were:
+\begin{itemize}
+    \item Task~\#31 (\texttt{isPrime}): The loop condition \texttt{i * i <= n} causes integer overflow when testing \texttt{Integer.MAX\_VALUE}.
+    \item Task~\#45 (\texttt{triangleArea}): The multiplication \texttt{a * h} overflows to infinity when \texttt{a = Double.MAX\_VALUE}.
+\end{itemize}
+
+\textbf{LLM~2:} 269 out of 273 tests passed (98.5\%), with 3 failures and 1 timeout:
+\begin{itemize}
+    \item Task~\#13 (\texttt{greatestCommonDivisor}): Does not handle negative inputs---returns negative GCD.
+    \item Task~\#25 (\texttt{factorize}): The $O(n)$ loop times out on a large prime (about 2.1 billion iterations).
+    \item Task~\#45 (\texttt{triangleArea}): Same overflow problem as LLM~1.
+    \item Task~\#49 (\texttt{modp}): Returns 1 instead of 0 when $n=0$ and $p=1$ because the initial value is not reduced by modulo.
+\end{itemize}
+
+This shows something important: even though both LLMs got 100\% branch coverage, that was not enough to catch these bugs. The buggy code paths were technically ``covered'' but nobody tested them with extreme values. This matches what Foster et al.~\cite{mutation_meta} found---49\% of useful tests did not increase line coverage at all.
+
+We did not need to create input mutations---the boundary values we picked by hand were enough to find all the bugs.
 
 %==============================================================================
-% SECTION IV: Phase 2 -- Integration Testing
-%==============================================================================
-\section{Phase 2: Integration Testing}
-\label{sec:phase2}
-
-\subsection{BookScan Class Design}
-% TODO: Outline the design of the BookScan Java class generated by the agents.
-
-\begin{figure}[H]
-\centering
-% \includegraphics[width=0.8\textwidth]{images/bookscan_uml.png}
-\caption{BookScan Class UML Diagram}
-\label{fig:bookscan-uml}
-\end{figure}
-
-\subsection{Task Integration Details}
-% TODO: Detail how the three tasks were integrated into the BookScan class.
-
-\subsubsection{Task \#18 -- Substring}
-% TODO: Describe the integration of the substring task.
-
-\subsubsection{Task \#23 -- String Length}
-% TODO: Describe the integration of the string length task.
-
-\subsubsection{Task \#27 -- Upper-Lower Case}
-% TODO: Describe the integration of the upper-lower case task.
-
-\subsection{Integration Tests}
-% TODO: Discuss the integration tests generated by the LLM agents and
-% assess their effectiveness.
-
-\begin{table}[H]
-\centering
-\caption{Integration Test Results Summary}
-\label{tab:integration-results}
-\begin{tabularx}{\textwidth}{l c c X}
-\toprule
-\textbf{Test Scenario} & \textbf{LLM 1} & \textbf{LLM 2} & \textbf{Notes} \\
-\midrule
- & Pass/Fail & Pass/Fail &  \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Complex Integration Evaluation}
-% TODO: Evaluate the model's performance in complex class integration scenarios.
-% Detail any specific problems that occurred.
-
-\subsection{Prompt Engineering: Unmodified vs.\ Edited Prompts}
-% TODO: Compare the output generated using unmodified/combined prompts versus
-% edited/combined prompts. Explain your prompt engineering approach.
-
-\begin{table}[H]
-\centering
-\caption{Prompt Engineering Comparison}
-\label{tab:prompt-engineering}
-\begin{tabularx}{\textwidth}{l c c X}
-\toprule
-\textbf{Metric} & \textbf{Unmodified} & \textbf{Edited} & \textbf{Observation} \\
-\midrule
-Code Correctness    &  &  &  \\
-Test Pass Rate      &  &  &  \\
-Coverage            &  &  &  \\
-Code Quality        &  &  &  \\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-%==============================================================================
-% SECTION V: Results, Analysis, and Refactoring
+% SECTION IV: Results, Analysis, and Refactoring
 %==============================================================================
 \section{Results, Analysis, and Refactoring}
 \label{sec:results}
@@ -384,15 +451,11 @@ Code Quality        &  &  &  \\
 \centering
 \caption{Overall Test Results by LLM}
 \label{tab:overall-results}
-\begin{tabularx}{\textwidth}{l c c c c}
+\begin{tabularx}{\textwidth}{l c c}
 \toprule
-\textbf{Metric} & \textbf{LLM 1 (Unit)} & \textbf{LLM 1 (Integ.)} & \textbf{LLM 2 (Unit)} & \textbf{LLM 2 (Integ.)} \\
+\textbf{Metric} & \textbf{LLM 1 (Gemini)} & \textbf{LLM 2 (Claude)} \\
 \midrule
-Total Tests         &  &  &  &  \\
-Passed              &  &  &  &  \\
-Failed              &  &  &  &  \\
-Pass Rate (\%)      &  &  &  &  \\
-Code Correctness    &  &  &  &  \\
+ &  &  \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -407,7 +470,7 @@ Code Correctness    &  &  &  &  \\
     width=0.85\textwidth,
     height=7cm,
     ylabel={Percentage (\%)},
-    symbolic x coords={LLM1 Unit, LLM1 Integ., LLM2 Unit, LLM2 Integ.},
+    symbolic x coords={LLM 1, LLM 2},
     xtick=data,
     ymin=0, ymax=100,
     legend style={at={(0.5,-0.20)}, anchor=north, legend columns=2},
@@ -416,12 +479,12 @@ Code Correctness    &  &  &  &  \\
     enlarge x limits=0.2,
 ]
 % TODO: Replace 0 values with actual data
-\addplot coordinates {(LLM1 Unit,0) (LLM1 Integ.,0) (LLM2 Unit,0) (LLM2 Integ.,0)};
-\addplot coordinates {(LLM1 Unit,0) (LLM1 Integ.,0) (LLM2 Unit,0) (LLM2 Integ.,0)};
+\addplot coordinates {(LLM 1,0) (LLM 2,0)};
+\addplot coordinates {(LLM 1,0) (LLM 2,0)};
 \legend{Pass Rate, Fail Rate}
 \end{axis}
 \end{tikzpicture}
-\caption{Test Pass/Fail Rates by LLM and Test Type}
+\caption{Test Pass/Fail Rates by LLM}
 \label{fig:pass-fail-chart}
 \end{figure}
 
@@ -447,27 +510,54 @@ Code Correctness    &  &  &  &  \\
 \end{table}
 
 \subsection{Refactoring Process}
-% TODO: Discuss the refactoring process. Detail how you guided the agent to
-% make code corrections when tests failed during white-box or black-box testing.
+
+Once we found the bugs through manual testing, we used the LLMs to fix them. The prompts and responses for each fix are saved in \texttt{llm\_logs/llm1/refactoring/} and \texttt{llm\_logs/llm2/refactoring/}. Here is how we did it:
+
+\begin{enumerate}
+    \item We looked at the failing test to understand what went wrong and why.
+    \item We wrote a prompt that included the buggy code, the failing test, and what the correct behavior should be.
+    \item We gave the prompt to the LLM and got back the fixed code.
+    \item We applied the fix and re-ran all tests to make sure nothing else broke.
+\end{enumerate}
+
+\textbf{LLM~1 fixes (2 bugs):}
+\begin{itemize}
+    \item Task~\#31 (\texttt{isPrime}): Changed \texttt{i * i <= n} to \texttt{(long) i * i <= n} to stop integer overflow.
+    \item Task~\#45 (\texttt{triangleArea}): Changed \texttt{(a * h) / 2.0} to \texttt{a * (h / 2.0)} so the multiplication does not overflow first.
+\end{itemize}
+
+\textbf{LLM~2 fixes (4 bugs):}
+\begin{itemize}
+    \item Task~\#13 (\texttt{greatestCommonDivisor}): Added \texttt{Math.abs()} calls at the start to handle negative numbers.
+    \item Task~\#25 (\texttt{factorize}): Changed the loop to only go up to $\sqrt{n}$ instead of $n$.
+    \item Task~\#45 (\texttt{triangleArea}): Same fix as LLM~1.
+    \item Task~\#49 (\texttt{modp}): Changed \texttt{int result = 1} to \texttt{int result = 1 \% p}.
+\end{itemize}
 
 \subsection{Agent-Generated Code Errors}
-% TODO: Report on specific errors found in the agent-generated code.
+
+Table~\ref{tab:code-errors} lists all the bugs we found in the LLM-generated code.
 
 \begin{table}[H]
 \centering
-\caption{Common Errors in Agent-Generated Code}
+\caption{Errors Detected in LLM-Generated Code}
 \label{tab:code-errors}
-\begin{tabularx}{\textwidth}{l l X l}
+\begin{tabularx}{\textwidth}{l l l X l}
 \toprule
-\textbf{Task} & \textbf{Error Type} & \textbf{Description} & \textbf{Resolution} \\
+\textbf{Task} & \textbf{LLM} & \textbf{Error Type} & \textbf{Description} & \textbf{Resolution} \\
 \midrule
- &  &  &  \\
+\#31 & LLM~1 & Integer Overflow & Loop condition \texttt{i*i<=n} overflows for \texttt{Integer.MAX\_VALUE} & Cast to \texttt{long} \\
+\#45 & LLM~1 & Double Overflow & Intermediate \texttt{a*h} overflows for \texttt{Double.MAX\_VALUE} & Reorder arithmetic \\
+\#13 & LLM~2 & Missing Normalization & No \texttt{Math.abs()} for negative GCD inputs & Add abs() calls \\
+\#25 & LLM~2 & Performance & $O(n)$ trial division too slow for large primes & $O(\sqrt{n})$ optimization \\
+\#45 & LLM~2 & Double Overflow & Same intermediate overflow as LLM~1 & Reorder arithmetic \\
+\#49 & LLM~2 & Off-by-One Init & Initial value not reduced by modulo when $n=0$ & Init as \texttt{1\%p} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 %==============================================================================
-% SECTION VI: Conclusion
+% SECTION V: Conclusion
 %==============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
@@ -476,45 +566,52 @@ Code Correctness    &  &  &  &  \\
 % in both unit and integration testing pipelines.
 
 %==============================================================================
-% SECTION VII: Acknowledgments
+% SECTION VI: Acknowledgments
 %==============================================================================
 \section{Acknowledgments}
 \label{sec:acknowledgments}
 
 \subsection{GitHub Repository}
-% TODO: Provide the direct URL to your project's GitHub repository.
 The source code and all artifacts for this project are available at:
 \begin{center}
-    \url{https://github.com/YOUR_REPO_URL_HERE}
+    \url{https://github.com/cigdemahmet27/software_quality_and_testing_project}
 \end{center}
 
 \subsection{Work Distribution}
-% TODO: Provide a detailed breakdown of the work distribution and
-% specific duties among your 3-person group.
 
 \begin{table}[H]
 \centering
 \caption{Work Distribution Among Team Members}
 \label{tab:work-distribution}
-\begin{tabularx}{\textwidth}{l l X}
+\begin{tabularx}{\textwidth}{l X}
 \toprule
-\textbf{Member} & \textbf{Student ID} & \textbf{Responsibilities} \\
+\textbf{Member} & \textbf{Responsibilities} \\
 \midrule
-Ahmet Enes \c{C}i\u{g}dem & 150220079 &
-% TODO: List specific duties
-\\[0.5cm]
-Ali Eren \c{C}ift\c{c}i & 150220022 &
-% TODO: List specific duties
-\\[0.5cm]
-Taha \c{C}ali & 150220050 &
-% TODO: List specific duties
-\\
+\multicolumn{2}{l}{\textbf{Ahmet Enes \c{C}i\u{g}dem -- 150220079}} \\
+& Project structure setup and prompt selection \\
+& LLM~1 (Gemini) code generation, base tests, and improved tests \\
+& Manual tests and equivalence classes for Tasks \#3, \#4, \#5, \#7, \#9, \#26, \#27, \#28, \#29, \#30 \\
+& JNose test smell analysis \\
+\midrule
+\multicolumn{2}{l}{\textbf{Ali Eren \c{C}ift\c{c}i -- 150220022}} \\
+& LLM~2 (Claude) code generation and base tests \\
+& Manual tests and equivalence classes for Tasks \#13, \#23, \#25, \#31, \#34, \#35, \#42, \#43, \#45, \#49 \\
+& Bug analysis, refactoring logs, and manual test reports \\
+\midrule
+\multicolumn{2}{l}{\textbf{Taha \c{C}ali -- 150220050}} \\
+& LLM~2 (Claude) improved test generation \\
+& Manual tests and equivalence classes for Tasks \#0, \#2, \#8, \#10, \#11, \#14, \#15, \#16, \#18, \#39 \\
+& JaCoCo coverage report generation \\
+& Literature review \\
+\midrule
+\multicolumn{2}{l}{\textbf{Shared by all members}} \\
+& IEEE report writing \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 %==============================================================================
-% SECTION VIII: References
+% SECTION VII: References
 %==============================================================================
 % IEEE-style references
 \bibliographystyle{IEEEtran}
