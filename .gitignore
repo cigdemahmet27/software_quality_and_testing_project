@@ -103,4 +103,26 @@ __pycache__/
 # Documents (PDF, TXT)
 # ========================
 *.pdf
+# ALLOW the PDF inside the report folder to be tracked
+!report/*.pdf
 *.txt
+
+# ========================
+# LaTeX Build Files (report/ directory)
+# ========================
+*.aux
+*.bbl
+*.blg
+*.brf
+*.idx
+*.ilg
+*.ind
+*.lof
+*.lot
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bcf
+*.run.xml
