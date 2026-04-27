@@ -1,7 +1,5 @@
 package humaneval.llm2.task23;
 
-import java.util.*;
-import java.lang.*;
 
 public class Solution {
     /**

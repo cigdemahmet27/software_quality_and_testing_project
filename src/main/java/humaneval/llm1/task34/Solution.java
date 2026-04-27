@@ -1,7 +1,6 @@
 package humaneval.llm1.task34;
 
 import java.util.*;
-import java.lang.*;
 
 public class Solution {
     /**
