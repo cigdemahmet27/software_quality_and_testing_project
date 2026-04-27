@@ -18,13 +18,16 @@ public class Solution {
     public List<Integer> factorize(int n) {
         List<Integer> factors = new ArrayList<>();
         int divisor = 2;
-        while (n > 1) {
+        while (divisor * divisor <= n) {
             if (n % divisor == 0) {
                 factors.add(divisor);
                 n /= divisor;
             } else {
                 divisor++;
             }
+        }
+        if (n > 1) {
+            factors.add(n);
         }
         return factors;
     }

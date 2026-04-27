@@ -18,7 +18,7 @@ public class Solution {
     1
      */
     public int modp(int n, int p) {
-        int result = 1;
+        int result = 1 % p;
         for (int i = 0; i < n; i++) {
             result = (result * 2) % p;
         }

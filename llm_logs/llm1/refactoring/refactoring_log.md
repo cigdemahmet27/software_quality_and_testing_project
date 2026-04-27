@@ -1,27 +1,95 @@
-# Refactoring and Bug Fixes for `llm1`
+# Refactoring Prompt for LLM1 Bug Fixes
 
-To achieve 100% line and branch coverage for the `humaneval.llm1` package, the following refactoring and minor bug fixes were applied to the generated solution classes:
+The following prompt was used to instruct an LLM to fix boundary-condition bugs detected by manual black-box testing.
 
-## 1. Class Visibility Modifications
-**Affected Tasks:** 9, 30, 31, 34, 35, 39, 42, 43, 45 (and potentially others)
-**Description:** The original code generation created `Solution` classes with package-private visibility (e.g., `class Solution`). This caused accessibility issues because the improved JUnit 5 tests reside in a different package (`humaneval.improved.llm1`). 
-**Fix:** Refactored the class declarations by adding the `public` modifier to all `Solution` classes (e.g., `public class Solution`).
+---
 
-## 2. Task 39: `isPrime` Helper Visibility
-**Affected Task:** `task39` (`primeFib`)
-**Description:** The `primeFib` method only tests integers starting from 2, meaning that the bounds checks for `n <= 1` inside the `isPrime` helper were mathematically unreachable from within `primeFib`. Since `isPrime` was declared as `private`, these branches could not be covered directly by tests.
-**Fix:** Changed the visibility of the `isPrime` helper method from `private` to `public`. This allowed the test suite to evaluate edge cases directly (such as `0`, `1`, and negative numbers), successfully achieving 100% branch coverage.
+## Prompt
 
-## 3. Task 10: Unreachable Loop Condition
-**Affected Task:** `task10` (`makePalindrome`)
-**Description:** The original generated code included a redundancy that blocked branch coverage:
+You are given two Java methods that have boundary-condition bugs detected by JUnit 5 tests. Fix each bug while preserving the original logic and method signatures. Do not add new methods or change return types.
+
+### Bug 1: Task #31 — `isPrime` (Integer Overflow in Loop Condition)
+
+**Current buggy code:**
 ```java
-if (n == 0) {
-    return "";
+public boolean isPrime(int n) {
+    if (n <= 1) {
+        return false;
+    }
+    if (n <= 3) {
+        return true;
+    }
+    if (n % 2 == 0 || n % 3 == 0) {
+        return false;
+    }
+    for (int i = 5; i * i <= n; i = i + 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
 }
 ```
-Because of this early return, the `n == 0` empty string edge case never reached the subsequent loop `for (int i = 0; i < n; i++)`. For any string where `n > 0`, the loop always hits a `break` statement before `i` can reach `n` (since a single character is always a palindrome, meaning the loop terminates at `i = n - 1` at the latest). This made the false evaluation of the loop condition `i < n` completely unreachable, resulting in 1 missed branch in JaCoCo.
-**Fix:** Removed the `if (n == 0)` block entirely. The algorithm is robust enough to handle `n = 0` natively. By passing an empty string to the loop, `i < n` evaluates as `0 < 0` (false), cleanly covering the branch without altering the logic or correctness of the function.
 
-## Note on Task 18
-While not a modification to the source code, achieving 100% coverage on `task18` (`howManyTimes`) required adding a very specific test case (`howManyTimes("", "")`) to short-circuit the boolean OR condition: `string == null || substring == null || string.isEmpty() && !substring.isEmpty()`. This resolved the final missing branch.
+**Failing test:**
+```java
+assertTrue(solution.isPrime(2147483647)); // Integer.MAX_VALUE is a Mersenne prime (2^31 - 1)
+```
+
+**Bug description:** The loop condition `i * i <= n` causes integer overflow when `i` is large enough that `i * i` exceeds `Integer.MAX_VALUE`. The multiplication wraps to a negative value, causing the loop to exit prematurely and return `true` or `false` incorrectly.
+
+**Required fix:** Prevent integer overflow in the `i * i` comparison by casting to `long`: `(long) i * i <= n`.
+
+---
+
+### Bug 2: Task #45 — `triangleArea` (Double Overflow in Intermediate Multiplication)
+
+**Current buggy code:**
+```java
+public double triangleArea(double a, double h) {
+    return (a * h) / 2.0;
+}
+```
+
+**Failing test:**
+```java
+assertEquals(Double.MAX_VALUE, solution.triangleArea(Double.MAX_VALUE, 2.0), 0.0001);
+// Expected: 1.7976931348623157E308
+// Actual:   Infinity
+```
+
+**Bug description:** When `a = Double.MAX_VALUE` and `h = 2.0`, the intermediate expression `a * h` evaluates to `Double.MAX_VALUE * 2.0 = Infinity`. Dividing `Infinity / 2.0` still yields `Infinity` instead of the mathematically correct result `Double.MAX_VALUE`.
+
+**Required fix:** Reorder the arithmetic to divide before multiplying: `a * (h / 2.0)` or equivalently `(a / 2.0) * h`. This avoids the intermediate overflow.
+
+---
+
+## Expected Fixed Code
+
+### Task #31 — Fixed `isPrime`
+```java
+public boolean isPrime(int n) {
+    if (n <= 1) {
+        return false;
+    }
+    if (n <= 3) {
+        return true;
+    }
+    if (n % 2 == 0 || n % 3 == 0) {
+        return false;
+    }
+    for (int i = 5; (long) i * i <= n; i = i + 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
+```
+
+### Task #45 — Fixed `triangleArea`
+```java
+public double triangleArea(double a, double h) {
+    return a * (h / 2.0);
+}
+```

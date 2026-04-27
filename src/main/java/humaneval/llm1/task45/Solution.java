@@ -10,6 +10,6 @@ public class Solution {
     7.5
      */
     public double triangleArea(double a, double h) {
-        return (a * h) / 2.0;
+        return a * (h / 2.0);
     }
 }
