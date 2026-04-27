@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="tr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solution.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BLG 475E - Software Quality and Testing Project</a> &gt; <a href="index.source.html" class="el_package">humaneval.llm1.task4</a> &gt; <span class="el_source">Solution.java</span></div><h1>Solution.java</h1><pre class="source lang-java linenums">package humaneval.llm1.task4;
+
+import java.util.*;
+
+<span class="nc" id="L5">public class Solution {</span>
+    /**
+    For a given list of input numbers, calculate Mean Absolute Deviation
+    around the mean of this dataset.
+    Mean Absolute Deviation is the average absolute difference between each
+    element and a centerpoint (mean in this case):
+    MAD = average | x - x_mean |
+    &gt;&gt;&gt; meanAbsoluteDeviation(Arrays.asList(1.0, 2.0, 3.0, 4.0))
+    1.0
+     */
+    public double meanAbsoluteDeviation(List&lt;Double&gt; numbers) {
+<span class="nc bnc" id="L16" title="All 4 branches missed.">        if (numbers == null || numbers.isEmpty()) {</span>
+<span class="nc" id="L17">            return 0.0; // Mean Absolute Deviation is 0 for an empty or null list</span>
+        }
+
+        // Step 1: Calculate the mean of the dataset
+<span class="nc" id="L21">        double sum = 0.0;</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">        for (double number : numbers) {</span>
+<span class="nc" id="L23">            sum += number;</span>
+<span class="nc" id="L24">        }</span>
+<span class="nc" id="L25">        double mean = sum / numbers.size();</span>
+
+        // Step 2: Calculate the sum of absolute differences from the mean
+<span class="nc" id="L28">        double absoluteDifferencesSum = 0.0;</span>
+<span class="nc bnc" id="L29" title="All 2 branches missed.">        for (double number : numbers) {</span>
+<span class="nc" id="L30">            absoluteDifferencesSum += Math.abs(number - mean);</span>
+<span class="nc" id="L31">        }</span>
+
+        // Step 3: Calculate the Mean Absolute Deviation
+<span class="nc" id="L34">        return absoluteDifferencesSum / numbers.size();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

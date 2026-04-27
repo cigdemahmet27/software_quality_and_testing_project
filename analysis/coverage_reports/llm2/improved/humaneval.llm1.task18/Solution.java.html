@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="tr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solution.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BLG 475E - Software Quality and Testing Project</a> &gt; <a href="index.source.html" class="el_package">humaneval.llm1.task18</a> &gt; <span class="el_source">Solution.java</span></div><h1>Solution.java</h1><pre class="source lang-java linenums">package humaneval.llm1.task18;
+
+
+<span class="nc" id="L4">public class Solution {</span>
+    /**
+    Find how many times a given substring can be found in the original string. Count overlaping cases.
+    &gt;&gt;&gt; howManyTimes(&quot;&quot;, &quot;a&quot;)
+    0
+    &gt;&gt;&gt; howManyTimes(&quot;aaa&quot;, &quot;a&quot;)
+    3
+    &gt;&gt;&gt; howManyTimes(&quot;aaaa&quot;, &quot;aa&quot;)
+    3
+     */
+    public int howManyTimes(String string, String substring) {
+<span class="nc bnc" id="L15" title="All 8 branches missed.">        if (string == null || substring == null || string.isEmpty() &amp;&amp; !substring.isEmpty()) {</span>
+<span class="nc" id="L16">            return 0;</span>
+        }
+<span class="nc bnc" id="L18" title="All 2 branches missed.">        if (substring.isEmpty()) {</span>
+<span class="nc" id="L19">            return 0; // An empty substring is often considered to not appear, or infinitely. Sticking to 0 for practical counting.</span>
+        }
+<span class="nc bnc" id="L21" title="All 2 branches missed.">        if (substring.length() &gt; string.length()) {</span>
+<span class="nc" id="L22">            return 0;</span>
+        }
+
+<span class="nc" id="L25">        int count = 0;</span>
+<span class="nc" id="L26">        int lastIndex = 0;</span>
+
+<span class="nc bnc" id="L28" title="All 2 branches missed.">        while (lastIndex != -1) {</span>
+<span class="nc" id="L29">            lastIndex = string.indexOf(substring, lastIndex);</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">            if (lastIndex != -1) {</span>
+<span class="nc" id="L31">                count++;</span>
+<span class="nc" id="L32">                lastIndex++; // Move search start to the next character to allow overlapping</span>
+            }
+        }
+<span class="nc" id="L35">        return count;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

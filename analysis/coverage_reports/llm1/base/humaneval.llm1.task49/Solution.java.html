@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="tr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solution.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">BLG 475E - Software Quality and Testing Project</a> &gt; <a href="index.source.html" class="el_package">humaneval.llm1.task49</a> &gt; <span class="el_source">Solution.java</span></div><h1>Solution.java</h1><pre class="source lang-java linenums">package humaneval.llm1.task49;
+
+
+<span class="fc" id="L4">public class Solution {</span>
+    /**
+    Return 2^n modulo p (be aware of numerics).
+    &gt;&gt;&gt; modp(3, 5)
+    3
+    &gt;&gt;&gt; modp(1101, 101)
+    2
+    &gt;&gt;&gt; modp(0, 101)
+    1
+    &gt;&gt;&gt; modp(3, 11)
+    8
+    &gt;&gt;&gt; modp(100, 101)
+    1
+     */
+    public int modp(int n, int p) {
+        // Handle the base case where n is 0.
+        // 2^0 = 1. The result should be 1 mod p.
+        // If p is 1, 1 mod 1 is 0.
+        // If p &gt; 1, 1 mod p is 1.
+<span class="fc bfc" id="L23" title="All 2 branches covered.">        if (n == 0) {</span>
+<span class="fc" id="L24">            return 1 % p;</span>
+        }
+
+        // Initialize result to 1, as x^0 = 1.
+<span class="fc" id="L28">        long result = 1;</span>
+        // The base for exponentiation is 2.
+<span class="fc" id="L30">        long base = 2;</span>
+        // Use a long for the exponent to safely perform operations within the loop,
+        // although 'n' is int, it's good practice for modular exponentiation.
+<span class="fc" id="L33">        long exponent = n; </span>
+
+        // Binary exponentiation (also known as exponentiation by squaring)
+        // This algorithm efficiently computes (base^exponent) % p.
+<span class="fc bfc" id="L37" title="All 2 branches covered.">        while (exponent &gt; 0) {</span>
+            // If the current bit of the exponent is 1 (i.e., exponent is odd),
+            // we multiply this power of the base into our result.
+            // We take modulo p at each step to prevent overflow.
+<span class="fc bfc" id="L41" title="All 2 branches covered.">            if (exponent % 2 == 1) {</span>
+<span class="fc" id="L42">                result = (result * base) % p;</span>
+            }
+            
+            // Square the base for the next iteration.
+            // This effectively moves to the next power of 2 for the exponent.
+            // Again, take modulo p to keep the numbers manageable.
+<span class="fc" id="L48">            base = (base * base) % p;</span>
+            
+            // Halve the exponent (equivalent to a right shift, moving to the next bit).
+<span class="fc" id="L51">            exponent /= 2;</span>
+        }
+
+        // The final result will be an integer between 0 and p-1 (inclusive),
+        // so it fits within an int.
+<span class="fc" id="L56">        return (int) result;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
