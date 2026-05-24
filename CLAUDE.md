@@ -47,8 +47,10 @@ software_quality_and_testing_project/
 │   │   ├── llm1/task{N}/Solution.java   # Phase 1: LLM1-generated code (30 tasks)
 │   │   └── llm2/task{N}/Solution.java   # Phase 1: LLM2-generated code (30 tasks)
 │   └── phase_2/
-│       ├── llm1/BookScan.java           # Phase 2: BookScan by LLM1
-│       └── llm2/BookScan.java           # Phase 2: BookScan by LLM2
+│       ├── llm1/unmodified/BookScan.java # Phase 2: BookScan by LLM1 (unmodified prompt)
+│       ├── llm1/edited/BookScan.java     # Phase 2: BookScan by LLM1 (edited prompt)
+│       ├── llm2/unmodified/BookScan.java # Phase 2: BookScan by LLM2 (unmodified prompt)
+│       └── llm2/edited/BookScan.java     # Phase 2: BookScan by LLM2 (edited prompt)
 │
 ├── src/test/java/
 │   ├── humaneval/
@@ -56,8 +58,10 @@ software_quality_and_testing_project/
 │   │   ├── improved/llm{1,2}/task{N}/   # Phase 1: Improved tests
 │   │   └── manual/llm{1,2}/task{N}/     # Phase 1: Manual tests
 │   └── phase_2/
-│       ├── llm1/BookScanIntegrationTest.java
-│       └── llm2/BookScanIntegrationTest.java
+│       ├── llm1/unmodified/BookScanIntegrationTest.java
+│       ├── llm1/edited/BookScanIntegrationTest.java
+│       ├── llm2/unmodified/BookScanIntegrationTest.java
+│       └── llm2/edited/BookScanIntegrationTest.java
 │
 ├── llm_logs/
 │   ├── llm1/                            # Phase 1 logs
@@ -122,8 +126,8 @@ software_quality_and_testing_project/
 
 ## Coding Conventions
 
-- **Package naming:** `phase_2.llm1`, `phase_2.llm2`
-- **Test package naming:** `phase_2.llm1`, `phase_2.llm2`
+- **Package naming:** `phase_2.llm1.unmodified`, `phase_2.llm1.edited`, `phase_2.llm2.unmodified`, `phase_2.llm2.edited`
+- **Test package naming:** Same as source packages
 - **File header format:**
   ```java
   /* @Authors
@@ -145,8 +149,14 @@ mvn compile
 # Run all tests
 mvn test
 
-# Run specific test class
-mvn test -Dtest=phase_2.llm1.BookScanIntegrationTest
+# Run specific test class (examples)
+mvn test -Dtest=phase_2.llm1.unmodified.BookScanIntegrationTest
+mvn test -Dtest=phase_2.llm1.edited.BookScanIntegrationTest
+mvn test -Dtest=phase_2.llm2.unmodified.BookScanIntegrationTest
+mvn test -Dtest=phase_2.llm2.edited.BookScanIntegrationTest
+
+# Run all Phase 2 tests
+mvn test -Dtest="phase_2.**"
 
 # Run tests with coverage
 mvn test jacoco:report

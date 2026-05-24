@@ -60,6 +60,8 @@ The key deliverable unique to Phase 2: **compare code generated from unmodified&
 
 **Decision needed:** Do you want to keep both BookScan versions (unmodified and edited) as separate files, or only keep the better one and document the other in logs?
 
+**Edit:** I want to keep both BookScan versions (unmodified and edited) as separate files, and I want to compare them in the report.
+
 > [!IMPORTANT]
 > **Suggested approach:** Keep the edited version as the primary `BookScan.java` and store the unmodified version in the logs. The report comparison only needs the logs and analysis, not both compiled simultaneously.
 
@@ -199,8 +201,14 @@ mvn test jacoco:report
 > [!IMPORTANT]
 > **Q1:** Which two LLMs are you using for LLM1 and LLM2? I need to know so I can tailor prompts correctly.
 
+**Answer:** I am using Gemini for LLM1 and Claude for LLM2.
+
 > [!IMPORTANT]
 > **Q2:** For the prompt comparison, do you want to keep both BookScan versions (unmodified + edited) as separate Java files that both compile, or just keep the final (edited) version in the source tree and document the unmodified version only in logs?
 
+**Answer:** I want to keep both BookScan versions (unmodified + edited) as separate Java files that both compile, and I want to compare them in the report.
+
 > [!WARNING]
 > **Q3:** The project says "Make sure the class contains three methods related with the tasks, namely #18 substring, #23 string length, #27 upper-lower case". Should the BookScan class directly contain `howManyTimes()`, `strlen()`, and `flipCase()` methods internally, or should it import/use the existing Phase 1 Solution classes? The project description says "create a Java class called BookScan", which suggests it should be a self-contained class with these methods built in.
+
+**Answer:** The BookScan class should directly contain the three methods internally, not import/use the existing Phase 1 Solution classes.
