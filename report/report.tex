@@ -1,6 +1,6 @@
 %==============================================================================
 % BLG 475E Software Quality and Testing - Term Project Report
-% Authors: Ahmet Enes Çiğdem, Ali Eren Çiftçi, Taha Çali
+% Authors: Ahmet Enes \c{C}i\u{g}dem, Ali Eren \c{C}ift\c{c}i, Taha \c{C}ali
 %==============================================================================
 \documentclass[12pt, a4paper]{article}
 
@@ -128,7 +128,7 @@
 \thispagestyle{empty}
 
 \begin{abstract}
-In this report, we go over the work we did for the BLG~475E Software Quality and Testing term project. We picked two Large Language Models---Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2)---and tested how well they can write code and generate unit tests for 30 Java tasks from the HumanEval dataset. Since API costs were too high, we used a semi-agentic workflow where we gave prompts through each model's web interface and then put the generated code into our Maven project by hand. Our testing pipeline had three stages: first we ran the base tests and checked branch coverage with JaCoCo, then we asked the LLMs to write better tests to cover missed branches and we ran JNose for test smells, and finally we wrote manual black-box tests using equivalence class partitioning and boundary value analysis. Both LLMs got to 100\% branch coverage after the improvement step. But the manual tests still found 2 bugs in LLM~1's code and 4 bugs in LLM~2's code---things like integer overflow, double overflow, missing input checks, and slow algorithms. We fixed all the bugs with help from the LLMs. The main takeaway is that even with full coverage, you still need manual boundary testing to catch edge-case bugs.
+In this report, we go over the work we did for the BLG~475E Software Quality and Testing term project. We picked two Large Language Models, Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2), and tested how well they can write code and generate unit tests for 30 Java tasks from the HumanEval dataset. Since API costs were too high, we used a semi-agentic workflow where we gave prompts through each model's web interface and then put the generated code into our Maven project by hand. Our testing pipeline had three stages: first we ran the base tests and checked branch coverage with JaCoCo, then we asked the LLMs to write better tests to cover missed branches and we ran JNose for test smells, and finally we wrote manual black-box tests using equivalence class partitioning and boundary value analysis. Both LLMs got to 100\% branch coverage after the improvement step. But the manual tests still found 2 bugs in LLM~1's code and 4 bugs in LLM~2's code. In Phase~2, we extended the project with integration testing by creating a \texttt{BookScan} class that combines three HumanEval tasks (\#18 substring counting, \#23 string length, \#27 case flipping) into a text analysis tool. We compared code generated from unmodified (raw) prompts versus edited (engineered) prompts. The edited prompts eliminated most bugs and produced consistent APIs, with the largest improvement seen in Claude (LLM~2). Our test effectiveness analysis showed that despite 95--100\% branch coverage, the LLM-generated tests only covered 39.4\% of systematically identified equivalence classes and boundary values, reinforcing that branch coverage alone is insufficient.
 \end{abstract}
 
 \newpage
@@ -145,9 +145,9 @@ In this report, we go over the work we did for the BLG~475E Software Quality and
 
 Large Language Models (LLMs) like Google's Gemini and Anthropic's Claude have become popular tools in software development. They can write code from plain English descriptions and they can also generate unit tests, which makes them useful for speeding up the development process.
 
-Writing tests by hand takes a lot of time and effort, and it is easy to miss edge cases. LLMs can help with this by generating test cases from function signatures and docstrings. But the code that LLMs write is not always correct---research has shown that it can have subtle bugs, especially around boundary conditions and performance~\cite{chatunitest, mutation_meta}.
+Writing tests by hand takes a lot of time and effort, and it is easy to miss edge cases. LLMs can help with this by generating test cases from function signatures and docstrings. But the code that LLMs write is not always correct. Research has shown that it can have subtle bugs, especially around boundary conditions and performance~\cite{chatunitest, mutation_meta}.
 
-In this project, we used two LLMs---Gemini Pro and Claude Opus~4.6---to generate Java solutions and tests for 30 tasks from the HumanEval benchmark~\cite{humaneval}. We then checked the quality of both the code and the tests through a multi-step process: base testing, coverage-driven test improvement, test smell detection, manual black-box testing with equivalence classes and boundary values, and finally LLM-assisted bug fixing.
+In this project, we used two LLMs (Gemini Pro and Claude Opus~4.6) to generate Java solutions and tests for 30 tasks from the HumanEval benchmark~\cite{humaneval}. We then checked the quality of both the code and the tests through a multi-step process: base testing, coverage-driven test improvement, test smell detection, manual black-box testing with equivalence classes and boundary values, and finally LLM-assisted bug fixing.
 
 \subsection{Literature Review}
 This section reviews five recent studies that investigate the use of LLMs in automated test generation and code quality assurance.
@@ -156,13 +156,13 @@ This section reviews five recent studies that investigate the use of LLMs in aut
 Chen et al.~\cite{chatunitest} present \textit{ChatUniTest}, an automated unit test generation framework that addresses two key weaknesses of LLM-based tools: limited context windows and insufficient validation of generated tests. The framework introduces an \textit{adaptive focal context} mechanism that extracts only the relevant method, class properties, and dependencies via AST parsing, rather than feeding the entire source file to the model. Generated tests pass through a Generation-Validation-Repair cycle that includes syntactic, compilation, and runtime checks, with both rule-based and LLM-based repair strategies. In evaluation, ChatUniTest achieved 59.6\% line coverage, outperforming TestSpark (42.1\%) and EvoSuite (38.2\%). This paper is directly relevant to our project since our workflow similarly relies on iterative prompt construction and post-generation validation to obtain compilable and correct unit tests from LLMs.
 
 \subsubsection{Mutation-Guided LLM-Based Test Generation at Meta}
-Foster et al.~\cite{mutation_meta} describe Meta's \textit{Automated Compliance Hardening (ACH)} system, which combines mutation testing with LLM-based test generation. Rather than prompting an LLM to ``write tests'' generically, ACH first generates targeted mutants---simulated faults specific to a concern such as privacy---and then instructs the LLM to produce tests that kill these mutants. Deployed on 10,795 Kotlin classes across seven Meta platforms, ACH generated 571 hardening test cases with a 73\% developer acceptance rate. A notable finding is that 49\% of the valuable tests did not increase line coverage, demonstrating that coverage alone is an insufficient quality metric. This insight directly informs our manual assessment phase, where we complement coverage analysis with equivalence class partitioning and boundary testing.
+Foster et al.~\cite{mutation_meta} describe Meta's \textit{Automated Compliance Hardening (ACH)} system, which combines mutation testing with LLM-based test generation. Rather than prompting an LLM to ``write tests'' generically, ACH first generates targeted mutants (simulated faults specific to a concern such as privacy) and then instructs the LLM to produce tests that kill these mutants. Deployed on 10,795 Kotlin classes across seven Meta platforms, ACH generated 571 hardening test cases with a 73\% developer acceptance rate. A notable finding is that 49\% of the valuable tests did not increase line coverage, demonstrating that coverage alone is an insufficient quality metric. This insight directly informs our manual assessment phase, where we complement coverage analysis with equivalence class partitioning and boundary testing.
 
 \subsubsection{Adaptive Testing for LLM-Based Applications}
-Yoon et al.~\cite{adaptive_testing} address the challenge of efficiently testing LLM-powered applications by adapting \textit{Adaptive Random Testing (ART)} to text-based prompt templates. Their approach iteratively selects the most diverse candidate input---measured via string distance metrics such as Levenshtein and Jaccard---and dynamically adjusts selection based on prior pass/fail outcomes. The technique discovers failures significantly faster than random sampling while requiring fewer costly API calls. For our project, this work provides a theoretical foundation for the input diversity strategies we apply when designing equivalence classes and selecting varied test inputs from the HumanEval dataset.
+Yoon et al.~\cite{adaptive_testing} address the challenge of efficiently testing LLM-powered applications by adapting \textit{Adaptive Random Testing (ART)} to text-based prompt templates. Their approach iteratively selects the most diverse candidate input (measured via string distance metrics such as Levenshtein and Jaccard) and dynamically adjusts selection based on prior pass/fail outcomes. The technique discovers failures significantly faster than random sampling while requiring fewer costly API calls. For our project, this work provides a theoretical foundation for the input diversity strategies we apply when designing equivalence classes and selecting varied test inputs from the HumanEval dataset.
 
 \subsubsection{LLM-Based Code Generation for Golang Compiler Testing}
-Gu et al.~\cite{golang_compiler} investigate using LLMs as intelligent fuzzers for compiler testing. By fine-tuning an LLM on a carefully filtered Go codebase and guiding generation with a coverage-based seed scheduling strategy, the authors achieved 3.38\% compiler code coverage---nearly eight times higher than standard Go fuzzing (0.44\%). The generated code exhibited only 2.79\% syntax errors and effectively zero undefined behaviors. Although our project targets Java unit tests rather than compiler fuzzing, this paper demonstrates how constrained, seed-guided LLM generation can produce high-quality code artifacts, reinforcing the value of prompt engineering and structured generation strategies in our own pipeline.
+Gu et al.~\cite{golang_compiler} investigate using LLMs as intelligent fuzzers for compiler testing. By fine-tuning an LLM on a carefully filtered Go codebase and guiding generation with a coverage-based seed scheduling strategy, the authors achieved 3.38\% compiler code coverage. This is nearly eight times higher than standard Go fuzzing (0.44\%). The generated code exhibited only 2.79\% syntax errors and effectively zero undefined behaviors. Although our project targets Java unit tests rather than compiler fuzzing, this paper demonstrates how constrained, seed-guided LLM generation can produce high-quality code artifacts, reinforcing the value of prompt engineering and structured generation strategies in our own pipeline.
 
 \subsubsection{LLM-Based Test-Driven Interactive Code Generation}
 Fakhoury et al.~\cite{ticoder} propose \textit{TiCoder}, an interactive workflow where the LLM first generates unit tests from a natural language prompt to formalize user intent, and then produces the implementation code constrained by those tests. In a user study with 15 programmers, participants using TiCoder were significantly more likely to correctly evaluate AI-generated code and reported lower cognitive load. At scale, the approach improved pass@1 accuracy by approximately 46\% within five interaction rounds. This paper is highly relevant to our project: it validates the test-driven philosophy we adopt in Phase~1, where LLM-generated tests serve as the specification against which code correctness is evaluated, and it motivates the iterative refinement approach we use in both our agentic and semi-agentic workflows.
@@ -192,7 +192,7 @@ Primary Role     & Code and test generation & Code and test generation \\
 \end{table}
 
 \subsection{Semi-Agentic Approach Justification}
-At first, we tried to build a fully automated pipeline using Python scripts that would call the models' APIs directly. But we ran into problems with API rate limits and token quotas---the free tiers ran out fast when dealing with 30 tasks, and paying for more was not an option.
+At first, we tried to build a fully automated pipeline using Python scripts that would call the models' APIs directly. But we ran into problems with API rate limits and token quotas. The free tiers ran out fast when dealing with 30 tasks, and paying for more was not an option.
 
 So we switched to a \textit{semi-agentic approach} instead. We wrote the prompts on our machines, pasted them into each LLM's web interface, and then copied the generated code back into our Maven project by hand.
 
@@ -253,11 +253,11 @@ Hard (5)   & \#4, \#10, \#25, \#39, \#49 & Recursion, complex math \\
 
 \subsection{Base Testing Phase}
 
-We gave each LLM the HumanEval prompt---function signature, docstring, and example test cases---and asked it to write the Java implementation. The code went into \texttt{src/main/java/humaneval/llm1/} and \texttt{src/main/java/humaneval/llm2/}.
+We gave each LLM the HumanEval prompt (function signature, docstring, and example test cases) and asked it to write the Java implementation. The code went into \texttt{src/main/java/humaneval/llm1/} and \texttt{src/main/java/humaneval/llm2/}.
 
 At the same time, each LLM also generated a basic set of unit tests (the ``base tests'') based on the examples in the prompt. These tests were simple and just checked that the function works for the sample inputs. We did not change the LLM-generated source code at this point.
 
-Figure~\ref{fig:base-llm1} and Figure~\ref{fig:base-llm2} show the JaCoCo coverage results for these base tests. LLM~1 had mixed results, with branch coverage ranging from 68\% to 100\%---for example, Task~\#18 only got 68\% and Task~\#7 got 70\%. LLM~2 did better overall, with only Task~\#25 falling below 100\% (at 83\%). Some simple tasks like \texttt{strlen} show ``n/a'' because they have no branches to cover.
+Figure~\ref{fig:base-llm1} and Figure~\ref{fig:base-llm2} show the JaCoCo coverage results for these base tests. LLM~1 had mixed results, with branch coverage ranging from 68\% to 100\%. For example, Task~\#18 only got 68\% and Task~\#7 got 70\%. LLM~2 did better overall, with only Task~\#25 falling below 100\% (at 83\%). Some simple tasks like \texttt{strlen} show ``n/a'' because they have no branches to cover.
 
 \begin{figure}[H]
 \centering
@@ -431,15 +431,15 @@ Our manual tests covered all the equivalence classes and boundary conditions we 
 
 \textbf{LLM~2:} 269 out of 273 tests passed (98.5\%), with 3 failures and 1 timeout:
 \begin{itemize}
-    \item Task~\#13 (\texttt{greatestCommonDivisor}): Does not handle negative inputs---returns negative GCD.
+    \item Task~\#13 (\texttt{greatestCommonDivisor}): Does not handle negative inputs and returns a negative GCD.
     \item Task~\#25 (\texttt{factorize}): The $O(n)$ loop times out on a large prime (about 2.1 billion iterations).
     \item Task~\#45 (\texttt{triangleArea}): Same overflow problem as LLM~1.
     \item Task~\#49 (\texttt{modp}): Returns 1 instead of 0 when $n=0$ and $p=1$ because the initial value is not reduced by modulo.
 \end{itemize}
 
-This shows something important: even though both LLMs got 100\% branch coverage, that was not enough to catch these bugs. The buggy code paths were technically ``covered'' but nobody tested them with extreme values. This matches what Foster et al.~\cite{mutation_meta} found---49\% of useful tests did not increase line coverage at all.
+This shows something important: even though both LLMs got 100\% branch coverage, that was not enough to catch these bugs. The buggy code paths were technically ``covered'' but nobody tested them with extreme values. This matches what Foster et al.~\cite{mutation_meta} found, which is that 49\% of useful tests did not increase line coverage at all.
 
-We did not need to create input mutations---the boundary values we picked by hand were enough to find all the bugs.
+We did not need to create input mutations because the boundary values we picked by hand were enough to find all the bugs.
 
 %==============================================================================
 % SECTION IV: Results, Analysis, and Refactoring
@@ -611,28 +611,146 @@ Table~\ref{tab:code-errors} lists all the bugs we found in the LLM-generated cod
 \end{table}
 
 %==============================================================================
-% SECTION V: Conclusion
+% SECTION V: Phase 2 -- Integration Testing
+%==============================================================================
+\section{Phase 2: Integration Testing}
+\label{sec:phase2}
+
+\subsection{BookScan Class Generation}
+
+In Phase~2, we created a Java class called \texttt{BookScan} whose primary purpose is to determine how many times words of a given length appear in a multi-line text and on which lines they appear. The class integrates three utility methods from Phase~1: \texttt{howManyTimes} (Task~\#18, overlapping substring counting), \texttt{strlen} (Task~\#23, string length), and \texttt{flipCase} (Task~\#27, case inversion).
+
+We generated \texttt{BookScan} using both LLMs under two prompt conditions: (1)~an \textbf{unmodified \& combined} prompt that concatenated the raw HumanEval descriptions, and (2)~an \textbf{edited \& combined} prompt with improved clarity, specified return types, edge case requirements, and case-insensitive matching instructions. This produced four variants in total.
+
+\subsection{Prompt Comparison: Unmodified vs.\ Edited}
+
+Table~\ref{tab:prompt-comparison} summarizes the key differences between code generated from unmodified and edited prompts.
+
+\begin{table}[H]
+\centering
+\caption{Prompt Comparison: Unmodified vs.\ Edited Code}
+\label{tab:prompt-comparison}
+\begin{tabularx}{\textwidth}{l c c c c}
+\toprule
+\textbf{Metric} & \textbf{LLM1 Unmod} & \textbf{LLM1 Edit} & \textbf{LLM2 Unmod} & \textbf{LLM2 Edit} \\
+\midrule
+Lines of Code        & 140  & 161  & 141  & 244  \\
+Case Sensitive?      & Yes  & No   & No   & No   \\
+Strips Punctuation?  & Yes  & Yes  & No   & Yes  \\
+Null Safe?           & Full & Full & Partial & Full \\
+Deduplicates?        & Yes  & Yes  & No   & Yes  \\
+Known Bugs           & 2    & 0    & 3    & 0    \\
+Branch Coverage      & 100\% & 95\% & 100\% & 95\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The edited prompts fixed all major bugs: LLM~1's case-sensitivity issue, LLM~2's null-pointer crashes, duplicate token counting, and missing punctuation stripping. The most impactful prompt changes were:
+
+\begin{itemize}
+    \item \textbf{Null handling:} Adding ``handle null inputs gracefully'' eliminated all null-related crashes in LLM~2.
+    \item \textbf{Case insensitivity:} Specifying ``support case-insensitive matching using flipCase'' fixed LLM~1's case-sensitive word grouping.
+    \item \textbf{Return type specification:} Requesting \texttt{Map<String, Map<String, Object>>} produced consistent APIs across both LLMs.
+    \item \textbf{Processing pipeline:} Enumerating the five processing steps produced cleaner, more maintainable code.
+\end{itemize}
+
+Notably, the delta between unmodified and edited was \textbf{larger for Claude (LLM~2)} than for Gemini (LLM~1). Claude follows instructions literally---when given minimal prompts, it omits null guards and deduplication. Gemini proactively adds safety measures even without being asked, making it less sensitive to prompt quality.
+
+\subsection{Integration Test Results}
+
+We generated JUnit~5 integration tests for all four \texttt{BookScan} variants. Table~\ref{tab:integration-results} shows the results.
+
+\begin{table}[H]
+\centering
+\caption{Integration Test Execution Results}
+\label{tab:integration-results}
+\begin{tabularx}{\textwidth}{l c c c c c}
+\toprule
+\textbf{Variant} & \textbf{Tests} & \textbf{Passed} & \textbf{Failed} & \textbf{Branch Cov.} & \textbf{Line Cov.} \\
+\midrule
+LLM1 Unmodified & 7 & 7 & 0 & 100\% & 100\% \\
+LLM1 Edited     & 7 & 7 & 0 & 95\%  & 96.4\% \\
+LLM2 Unmodified & 7 & 7 & 0 & 100\% & 97.5\% \\
+LLM2 Edited     & 7 & 7 & 0 & 95\%  & 96.6\% \\
+\midrule
+\textbf{Total}  & \textbf{28} & \textbf{28} & \textbf{0} & --- & --- \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+All 28 integration tests passed. The unmodified versions achieved 100\% branch coverage because they have simpler code (fewer guards). The edited versions' 95\% coverage is due to unreachable defensive checks: null guards in helper methods that are pre-filtered by the main method.
+
+The tests confirmed two key behavioral bugs in the unmodified versions:
+\begin{itemize}
+    \item \textbf{LLM2 Unmodified --- Duplicate counting:} When the same word appears multiple times on a line (e.g., ``Java Java''), the \texttt{scan()} method counts occurrences for each token separately, inflating counts quadratically.
+    \item \textbf{LLM1 Unmodified --- Substring false positives:} The method counts ``in'' inside ``inside'' because \texttt{howManyTimes} operates on the full text without word boundaries.
+\end{itemize}
+
+\subsection{Test Effectiveness Assessment}
+
+We performed equivalence class partitioning (ECP) and boundary value analysis (BVA) for all \texttt{BookScan} methods, following the same approach from Phase~1. Table~\ref{tab:test-effectiveness} summarizes the coverage.
+
+\begin{table}[H]
+\centering
+\caption{Test Effectiveness: Equivalence Class and Boundary Value Coverage}
+\label{tab:test-effectiveness}
+\begin{tabularx}{\textwidth}{l c c c}
+\toprule
+\textbf{Category} & \textbf{Total Defined} & \textbf{Covered by $\geq$1 Variant} & \textbf{Coverage Rate} \\
+\midrule
+Equivalence Classes & 40 & 21 & 52.5\% \\
+Boundary Values     & 26 & 5  & 19.2\% \\
+\midrule
+\textbf{Total}      & \textbf{66} & \textbf{26} & \textbf{39.4\%} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Key findings from the test effectiveness analysis:
+\begin{itemize}
+    \item The \textbf{edited versions} tested more equivalence classes (43--48\%) than the unmodified versions (20--28\%), because they included dedicated unit tests for each utility method.
+    \item \textbf{Boundary value coverage was poor across all variants} (4--12\%). No variant tested target length of~1, trailing newlines, Unicode characters, or very long texts.
+    \item \textbf{Unmodified tests were better at integration scenarios} (overlapping substrings, line tracking with empty lines), while \textbf{edited tests were better at edge-case isolation} (null, empty, zero/negative inputs).
+    \item The \textbf{39.4\% overall coverage rate} despite 95--100\% branch coverage reinforces Phase~1's finding that branch coverage alone is an insufficient quality metric.
+\end{itemize}
+
+\subsection{Integration Testing vs.\ Unit Testing Challenges}
+
+Compared to the unit testing in Phase~1, integration testing of \texttt{BookScan} presented unique challenges:
+
+\begin{enumerate}
+    \item \textbf{Method interaction bugs:} The substring false-positive bug only manifests when \texttt{howManyTimes} is used within the scanning context (searching normalized lines), not when tested in isolation.
+    \item \textbf{State accumulation:} The duplicate counting bug in LLM2 unmodified occurs because per-line occurrence counts are accumulated without deduplication---a pattern that wouldn't appear in unit tests of individual methods.
+    \item \textbf{API design divergence:} Without prompt engineering, each LLM chose different method names, return types, and inner classes, making it harder to write standardized comparison tests.
+    \item \textbf{Case normalization chains:} The edited versions chain \texttt{flipCase} through a helper method for normalization. If \texttt{flipCase} had a bug, it would cascade through all word matching---a failure mode absent from isolated unit tests.
+\end{enumerate}
+
+%==============================================================================
+% SECTION VI: Conclusion
 %==============================================================================
 \section{Conclusion}
 \label{sec:conclusion}
 
-In this project we tested Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2) on 30 Java tasks from HumanEval. Here is what we learned:
+In this project we tested Gemini Pro (LLM~1) and Claude Opus~4.6 (LLM~2) across two phases: unit testing of 30 HumanEval tasks and integration testing of a \texttt{BookScan} text analysis class.
 
+\textbf{Phase~1 findings:}
 \begin{enumerate}
     \item Both LLMs wrote code that works correctly for normal inputs. All 30 tasks passed the base tests without any changes to the source code.
-
-    \item After one round of test improvement, both LLMs got to 100\% branch coverage on all 30 tasks. So they are good at generating tests when you tell them which branches to target.
-
-    \item But even with full coverage, manual testing found 2 bugs in LLM~1 and 4 bugs in LLM~2. All the bugs were in boundary conditions---overflow, missing input checks, slow algorithms, and wrong initial values. This confirms that \textbf{branch coverage by itself is not enough}.
-
-    \item LLM~1 (Gemini) had fewer bugs (6.7\% vs.\ 13.3\%), so it wrote more reliable code for edge cases. LLM~2 (Claude) wrote fewer but more focused tests.
-
-    \item Both LLMs were able to fix all the bugs when we gave them detailed prompts with the failing test and the root cause.
-
-    \item The LLM-generated tests had some test smells (mainly \textit{Unknown Test} and \textit{Magic Number Test}), which shows that LLMs tend to write quick-and-dirty tests rather than well-structured ones.
+    \item After one round of test improvement, both LLMs got to 100\% branch coverage on all 30 tasks.
+    \item But even with full coverage, manual testing found 2 bugs in LLM~1 and 4 bugs in LLM~2. All the bugs were in boundary conditions like overflow, missing input checks, slow algorithms, and wrong initial values.
+    \item LLM~1 (Gemini) had fewer bugs (6.7\% vs.\ 13.3\%), so it wrote more reliable code for edge cases.
+    \item Both LLMs were able to fix all the bugs when given detailed prompts with the failing test and the root cause.
 \end{enumerate}
 
-The bottom line is that LLMs are useful tools for writing code and tests, but you still need to do manual testing---especially boundary value analysis---to catch the subtle bugs that automated approaches miss.
+\textbf{Phase~2 findings:}
+\begin{enumerate}
+    \item Prompt engineering had a dramatic impact on code quality. Edited prompts eliminated all major bugs (case sensitivity, null crashes, duplicate counting, missing punctuation handling) in both LLMs.
+    \item Claude (LLM~2) was more sensitive to prompt quality---the improvement from unmodified to edited was larger for Claude than for Gemini. Claude follows instructions literally, while Gemini proactively adds safety measures.
+    \item Despite 95--100\% branch coverage, LLM-generated integration tests only covered 39.4\% of systematically identified equivalence classes and boundary values.
+    \item Integration testing revealed bugs that unit testing could not: method interaction issues (substring false positives) and state accumulation bugs (duplicate counting) only manifest when methods are composed together.
+\end{enumerate}
+
+The overall takeaway is that LLMs are powerful tools for code and test generation, but they require both \textbf{careful prompt engineering} and \textbf{manual black-box testing} to produce reliable software. Branch coverage is a necessary but insufficient quality metric, and prompt quality significantly affects the reliability of generated code---especially for LLMs like Claude that follow instructions literally.
 
 %==============================================================================
 % SECTION VI: Acknowledgments
@@ -661,17 +779,27 @@ The source code and all artifacts for this project are available at:
 & LLM~1 (Gemini) code generation, base tests, and improved tests \\
 & Manual tests and equivalence classes for Tasks \#3, \#4, \#5, \#7, \#9, \#26, \#27, \#28, \#29, \#30 \\
 & JNose test smell analysis \\
+& Phase~2: Unmodified \& edited prompt preparation \\
+& Phase~2: BookScan class generation with both LLMs \\
+& Phase~2: Compilation verification and fixes \\
 \midrule
 \multicolumn{2}{l}{\textbf{Ali Eren \c{C}ift\c{c}i -- 150220022}} \\
 & LLM~2 (Claude) code generation and base tests \\
 & Manual tests and equivalence classes for Tasks \#13, \#23, \#25, \#31, \#34, \#35, \#42, \#43, \#45, \#49 \\
 & Bug analysis, refactoring logs, and manual test reports \\
+& Phase~2: Integration test generation for BookScan \\
+& Phase~2: Test execution and result analysis \\
+& Phase~2: Refactoring loop for failing tests \\
+& Phase~2: JaCoCo coverage analysis for BookScan \\
 \midrule
 \multicolumn{2}{l}{\textbf{Taha \c{C}ali -- 150220050}} \\
 & LLM~2 (Claude) improved test generation \\
 & Manual tests and equivalence classes for Tasks \#0, \#2, \#8, \#10, \#11, \#14, \#15, \#16, \#18, \#39 \\
 & JaCoCo coverage report generation \\
 & Literature review \\
+& Phase~2: Test effectiveness assessment (ECP/BVA for BookScan) \\
+& Phase~2: Prompt comparison analysis (unmodified vs.\ edited) \\
+& Phase~2: Report writing (integration testing sections) \\
 \midrule
 \multicolumn{2}{l}{\textbf{Shared by all members}} \\
 & IEEE report writing \\
