@@ -22,7 +22,7 @@
 | **Deduplicates per-line?** | ✅ Yes (first seen) | ✅ Yes (HashSet) | ❌ No (bug) | ✅ Yes (HashSet) |
 | **Uses flipCase in integration?** | ✅ For display | ✅ For normalization | ✅ For normalization | ✅ For normalization |
 | **Tests passed** | 7/7 | 7/7 | 7/7 | 7/7 |
-| **Branch coverage** | 100% (12/12) | 95% (38/40) | 100% (24/24) | 95% (38/40) |
+| **Branch coverage** | 83% (25/30) | 95% (38/40) | 100% (24/24) | 95% (38/40) |
 | **Known bugs** | Substring false positives, case-sensitive | None | Duplicate counting, no null safety | None |
 | **JavaDoc quality** | Basic comments | Full JavaDoc | HumanEval-style docstrings | Full JavaDoc with `@param`, `@return`, `{@link}` |
 

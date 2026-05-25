@@ -1,6 +1,6 @@
 /* @Authors
- * Student Names: Ahmet Enes Çiğdem
- * Student IDs: 150220079
+ * Student Names: Taha Çali, Ahmet Enes Çiğdem, Ali Eren Çiftçi
+ * Student IDs: 150220050, 150220079, 150220022
  *
  * Integration tests for BookScan (LLM2: Claude — Unmodified Prompt Version)
  */

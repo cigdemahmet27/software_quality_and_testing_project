@@ -1,6 +1,6 @@
 /* @Authors
- * Student Names: Ali Eren Çiftçi
- * Student IDs: 150220022
+ * Student Names: Taha Çali, Ahmet Enes Çiğdem, Ali Eren Çiftçi
+ * Student IDs: 150220050, 150220079, 150220022
  *
  * Integration tests for BookScan (LLM1: Gemini — Edited Prompt Version)
  */

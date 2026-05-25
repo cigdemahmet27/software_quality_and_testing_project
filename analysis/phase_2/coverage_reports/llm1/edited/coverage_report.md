@@ -6,9 +6,9 @@ This report documents the branch and line coverage achieved by the integration t
 
 ## Edited Prompt Version
 - **Class Path:** `phase_2.llm1.edited.BookScan`
-- **Line Coverage:** **96.4%** (55/57 lines covered)
-- **Branch Coverage:** **95.0%** (38/40 branches covered)
-- **Method Coverage:** **83.3%** (5/6 methods covered)
+- **Line Coverage:** **96.5%** (55/57 lines covered, 2 missed)
+- **Branch Coverage:** **95.0%** (38/40 branches covered, 2 missed)
+- **Method Coverage:** **83.3%** (5/6 methods covered, 1 missed)
 
 ### Coverage Breakdown:
 
@@ -16,7 +16,7 @@ This report documents the branch and line coverage achieved by the integration t
 | :--- | :---: | :---: | :---: | :---: |
 | **Instructions** | 265 | 5 | 270 | **98.1%** |
 | **Branches** | 38 | 2 | 40 | **95.0%** |
-| **Lines** | 55 | 2 | 57 | **96.4%** |
+| **Lines** | 55 | 2 | 57 | **96.5%** |
 | **Methods** | 5 | 1 | 6 | **83.3%** |
 
 ### Missed Elements Detail:
@@ -31,4 +31,5 @@ This report documents the branch and line coverage achieved by the integration t
 
 ## Author Context
 - **Report Compiled By:** Ali Eren Çiftçi (Student ID: 150220022)
-- **Status:** Complete & Approved
+- **Coverage Data Source:** JaCoCo 0.8.13 via `mvn test -Dtest="phase_2.**" jacoco:report`
+- **Status:** Complete & Verified
